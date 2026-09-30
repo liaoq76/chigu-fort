@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吃谷吗 - 谷圈记账与收藏高保真原型</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        anime: {
+                            pink: '#FF94B9',
+                            softPink: '#FFF0F5',
+                            purple: '#9B8BFF',
+                            softPurple: '#F3F0FF',
+                            yellow: '#FFC857',
+                            softYellow: '#FFF9E6',
+                            mint: '#4EAE9A',
+                            softMint: '#E8F8F5',
+                            dark: '#2D3142',
+                            gray: '#8D99AE'
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 30px -5px rgba(255, 148, 185, 0.15)',
+                        'card': '0 4px 20px 0 rgba(155, 139, 255, 0.08)',
+                        'floating': '0 12px 35px rgba(255, 148, 185, 0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+            background: linear-gradient(135deg, #f6f8fd 0%, #f0f3fa 100%);
+            user-select: none;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .phone-mockup {
+            width: 393px;
+            height: 852px;
+            border-radius: 50px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.15), 0 0 0 12px #2d3142, 0 0 0 14px #4a5068;
+        }
+        .badge-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 md:p-6 text-slate-800">
+
+<div id="app" class="w-full flex justify-center items-center">
+
+    <!-- Phone Frame Container -->
+    <div class="phone-mockup bg-slate-50 relative overflow-hidden flex flex-col transition-all duration-300">
+        
+        <!-- Status Bar -->
+        <div class="glass-header z-30 pt-3 pb-1 px-7 flex justify-between items-center text-xs font-semibold text-slate-700 shrink-0 select-none">
+            <span>{{ currentTime }}</span>
+            <div class="w-24 h-4 bg-slate-900 rounded-full absolute left-1/2 -translate-x-1/2 top-2"></div>
+            <div class="flex items-center gap-1.5 text-slate-700">
+                <i class="fa-solid fa-signal text-[10px]"></i>
+                <i class="fa-solid fa-wifi text-[10px]"></i>
+                <i class="fa-solid fa-battery-full text-xs"></i>
+            </div>
+        </div>
+
+        <!-- App Main Content Area -->
+        <div class="flex-1 overflow-y-auto no-scrollbar relative pb-20">
+
+            <!-- ================= 1. 首页 (HOME) ================= -->
+            <div v-if="currentTab === 'home'" class="p-4 space-y-4 animate-fade-in">
+                <!-- Top User Greeting Header -->
+                <div class="flex justify-between items-center pt-1">
+                    <div class="flex items-center gap-3">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" class="w-10 h-10 rounded-full border-2 border-anime-pink object-cover shadow-sm">
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-800">吃谷达人·喵酱 <span class="text-xs font-normal text-anime-pink bg-anime-softPink px-2 py-0.5 rounded-full ml-1">Lv.6 谷圣</span></h2>
+                            <p class="text-[11px] text-slate-400">吃谷使我快乐，吃土使我清醒 🛍️</p>
+                        </div>
+                    </div>
+                    <button @click="openModal('add')" class="w-9 h-9 rounded-full bg-gradient-to-tr from-anime-pink to-anime-purple text-white flex items-center justify-center shadow-md active:scale-95 transition-transform">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- 本月消费 Card -->
+                <div class="bg-gradient-to-br from-anime-pink to-anime-purple p-5 rounded-3xl text-white shadow-soft relative overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 text-9xl">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2 relative z-10">
+                        <span class="text-xs font-medium text-pink-100 flex items-center gap-1">
+                            <i class="fa-regular fa-calendar-check"></i> 2026年9月消费
+                        </span>
+                        <span class="text-[10px] bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full text-white font-medium">
+                            较上月 <i class="fa-solid fa-arrow-down text-[9px]"></i> 12.4%
+                        </span>
+                    </div>
+                    <div class="text-3xl font-black tracking-tight mb-3 relative z-10">
+                        ¥{{ formatMoney(monthlyExpense) }}
+                    </div>
+
+                    <!-- 预算摘要 (开启时显示) -->
+                    <div v-if="settings.enableBudget" class="bg-white/15 backdrop-blur-md rounded-2xl p-3 border border-white/20 space-y-1.5 relative z-10">
+                        <div class="flex justify-between text-xs font-medium text-pink-50">
+                            <span>本月预算进度</span>
+                            <span>已用 {{ budgetPercent }}% / 剩余 ¥{{ formatMoney(settings.monthlyBudget - monthlyExpense) }}</span>
+                        </div>
+                        <div class="w-full h-2 bg-black/20 rounded-full overflow-hidden">
+                            <div class="h-full bg-white rounded-full transition-all duration-500" :style="{ width: budgetPercent + '%' }"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消费趋势 Chart Card -->
+                <div class="glass-card p-4 rounded-3xl shadow-card space-y-3">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-4 bg-anime-purple rounded-full"></div>
+                            <h3 class="text-xs font-bold text-slate-700">近半年消费趋势</h3>
+                        </div>
+                        <span class="text-[11px] text-slate-400">平均 ¥2,480/月</span>
+                    </div>
+                    <div class="h-32 w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 待收到 Grid / Carousel -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center px-1">
+                        <h3 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-truck-fast text-anime-pink"></i> 待收到谷子 
+                            <span class="bg-anime-softPink text-anime-pink text-[10px] px-2 py-0.5 rounded-full font-bold">{{ pendingItems.length }}件</span>
+                        </h3>
+                        <button @click="currentTab = 'mine'; activeSubPage = 'preorder'" class="text-[11px] text-anime-purple font-medium">全部分配 ></button>
+                    </div>
+
+                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+                        <div v-for="item in pendingItems" :key="item.id" @click="showItemDetail(item)" class="min-w-[150px] glass-card p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between shrink-0 hover:border-anime-pink transition-all cursor-pointer">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded text-anime-pink bg-anime-softPink">{{ item.ip }}</span>
+                                    <span class="text-[9px] text-slate-400">{{ item.status }}</span>
+                                </div>
+                                <h4 class="text-xs font-bold text-slate-800 line-clamp-1">{{ item.name }}</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">补款倒计时: <span class="text-amber-500 font-semibold">{{ item.daysLeft }}天</span></p>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-end">
+                                <span class="text-xs font-extrabold text-slate-800">¥{{ item.price }}</span>
+                                <span class="text-[9px] text-slate-400">预售</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近消费 List -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center px-1">
+                        <h3 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-receipt text-anime-purple"></i> 最近消费
+                        </h3>
+                        <button @click="currentTab = 'expense'" class="text-[11px] text-slate-400">查看更多</button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div v-for="record in recentExpenses" :key="record.id" class="glass-card p-3 rounded-2xl flex items-center justify-between hover:bg-white transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-sm" :class="record.type === '谷子' ? 'bg-anime-softPink text-anime-pink' : 'bg-anime-softPurple text-anime-purple'">
+                                    <i :class="record.type === '谷子' ? 'fa-solid fa-box-open' : 'fa-solid fa-gamepad'"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">{{ record.title }}</h4>
+                                    <p class="text-[10px] text-slate-400">{{ record.date }} · {{ record.ip }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-black text-slate-800">-¥{{ record.amount }}</span>
+                                <p class="text-[9px] text-slate-400">{{ record.channel }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= 2. 消费 (EXPENSE) ================= -->
+            <div v-if="currentTab === 'expense'" class="p-4 space-y-4 animate-fade-in">
+                <!-- Top Title & Category Switcher -->
+                <div class="space-y-3">
+                    <h2 class="text-base font-extrabold text-slate-800">消费明细账单</h2>
+                    <div class="flex bg-slate-200/60 p-1 rounded-2xl text-xs font-bold text-slate-500">
+                        <button v-for="cat in ['全部消费', '谷子', '游戏氪金', '统计']" :key="cat" @click="expenseCategory = cat" class="flex-1 py-1.5 rounded-xl transition-all" :class="expenseCategory === cat ? 'bg-white text-slate-800 shadow-sm' : ''">
+                            {{ cat }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Condition: 统计页面 -->
+                <div v-if="expenseCategory === '统计'" class="space-y-4">
+                    <div class="glass-card p-4 rounded-3xl space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700">IP 消费占比分析</h3>
+                        <div class="h-44 flex items-center justify-center">
+                            <canvas id="ipPieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-3xl space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700">谷子品类吃谷分布</h3>
+                        <div class="space-y-2">
+                            <div v-for="item in categoryStats" :key="item.name" class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-600 font-medium">{{ item.name }} ({{ item.count }}件)</span>
+                                    <span class="font-bold text-slate-800">¥{{ item.total }} ({{ item.percent }}%)</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-anime-pink to-anime-purple rounded-full" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Condition: 明细列表 (全部/谷子/氪金) -->
+                <div v-else class="space-y-3">
+                    <div class="flex justify-between items-center text-xs text-slate-400 px-1">
+                        <span>共计 {{ filteredExpenses.length }} 笔交易</span>
+                        <span>总花费: <strong class="text-slate-800 font-bold">¥{{ totalFilteredExpenseAmount }}</strong></span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div v-for="exp in filteredExpenses" :key="exp.id" class="glass-card p-3 rounded-2xl flex justify-between items-center hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-sm shadow-sm" :class="exp.type==='谷子'?'bg-anime-softPink text-anime-pink':'bg-anime-softPurple text-anime-purple'">
+                                    <i :class="exp.type==='谷子'?'fa-solid fa-bag-shopping':'fa-solid fa-gem'"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">{{ exp.title }}</h4>
+                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                        <span class="text-[9px] px-1.5 py-0.2 bg-slate-100 text-slate-500 rounded">{{ exp.ip }}</span>
+                                        <span class="text-[10px] text-slate-400">{{ exp.date }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-black text-slate-800">-¥{{ exp.amount }}</div>
+                                <span class="text-[9px] text-anime-purple bg-anime-softPurple px-1.5 py-0.5 rounded">{{ exp.status }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= 3. 收藏 (COLLECTION) ================= -->
+            <div v-if="currentTab === 'collection'" class="p-4 space-y-4 animate-fade-in">
+                <!-- Header & Search/Filter -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base font-extrabold text-slate-800">我的谷库&收藏</h2>
+                        <button @click="showFilterDrawer = true" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-sm text-slate-600 active:scale-95">
+                            <i class="fa-solid fa-filter text-anime-pink"></i> 筛选
+                        </button>
+                    </div>
+
+                    <!-- Toggle Current vs History -->
+                    <div class="flex bg-slate-200/60 p-1 rounded-2xl text-xs font-bold text-slate-500">
+                        <button @click="collectionSubTab = 'current'" class="flex-1 py-1.5 rounded-xl transition-all" :class="collectionSubTab==='current'?'bg-white text-slate-800 shadow-sm':''">
+                            当前收藏 ({{ collections.length }})
+                        </button>
+                        <button @click="collectionSubTab = 'history'" class="flex-1 py-1.5 rounded-xl transition-all" :class="collectionSubTab==='history'?'bg-white text-slate-800 shadow-sm':''">
+                            退坑/转让历史 ({{ collectionHistory.length }})
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Grid Showcase -->
+                <div v-if="collectionSubTab === 'current'" class="grid grid-cols-2 gap-3">
+                    <div v-for="item in filteredCollections" :key="item.id" @click="openCollectionDetail(item)" class="glass-card rounded-2xl overflow-hidden shadow-card border border-white hover:scale-[1.02] transition-transform cursor-pointer">
+                        <div class="h-32 bg-slate-100 relative overflow-hidden">
+                            <img :src="item.image" class="w-full h-full object-cover">
+                            <span class="absolute top-2 left-2 bg-black/50 backdrop-blur-md text-white text-[9px] px-2 py-0.5 rounded-full">
+                                {{ item.ip }}
+                            </span>
+                            <span v-if="item.premiumRate > 0" class="absolute top-2 right-2 bg-anime-pink text-white font-bold text-[9px] px-1.5 py-0.5 rounded-md shadow">
+                                溢价 +{{ item.premiumRate }}%
+                            </span>
+                        </div>
+                        <div class="p-2.5 space-y-1">
+                            <h4 class="text-xs font-bold text-slate-800 line-clamp-1">{{ item.title }}</h4>
+                            <div class="flex justify-between items-center text-[10px] text-slate-400">
+                                <span>角色: {{ item.character }}</span>
+                                <span>{{ item.category }}</span>
+                            </div>
+                            <div class="pt-1 flex justify-between items-end border-t border-slate-100">
+                                <div>
+                                    <span class="text-[9px] text-slate-400 block">入手价</span>
+                                    <span class="text-xs font-extrabold text-slate-800">¥{{ item.buyPrice }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[9px] text-slate-400 block">估值</span>
+                                    <span class="text-xs font-extrabold text-anime-pink">¥{{ item.marketPrice }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History View -->
+                <div v-else class="space-y-2">
+                    <div v-for="item in collectionHistory" :key="item.id" class="glass-card p-3 rounded-2xl flex justify-between items-center opacity-80">
+                        <div class="flex items-center gap-3">
+                            <img :src="item.image" class="w-12 h-12 rounded-xl object-cover">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">{{ item.title }}</h4>
+                                <p class="text-[10px] text-slate-400">转让时间: {{ item.soldDate }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-extrabold text-emerald-600">+¥{{ item.soldPrice }}</span>
+                            <span class="text-[9px] text-slate-400 block">买入: ¥{{ item.buyPrice }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= 4. 我的 (MINE) ================= -->
+            <div v-if="currentTab === 'mine'" class="p-4 space-y-4 animate-fade-in">
+                <!-- Subpage Switcher Navigation -->
+                <div v-if="activeSubPage === 'main'" class="space-y-4">
+                    <!-- User Info Card -->
+                    <div class="glass-card p-4 rounded-3xl border border-white shadow-card flex items-center gap-3 bg-gradient-to-r from-white to-pink-50/50">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" class="w-14 h-14 rounded-full border-2 border-anime-pink object-cover shadow-sm">
+                        <div class="flex-1">
+                            <h3 class="text-sm font-extrabold text-slate-800">吃谷达人·喵酱</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">谷库资产估值: <strong class="text-anime-pink font-bold">¥18,920</strong></p>
+                            <div class="flex gap-2 mt-2">
+                                <span class="text-[9px] bg-anime-softPink text-anime-pink px-2 py-0.5 rounded-full font-bold">收藏 42 件</span>
+                                <span class="text-[9px] bg-anime-softPurple text-anime-purple px-2 py-0.5 rounded-full font-bold">追IP 6 个</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Options List -->
+                    <div class="glass-card rounded-3xl overflow-hidden shadow-card border border-white divide-y divide-slate-100 text-xs">
+                        <button @click="activeSubPage = 'budget'" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-pink-100 text-anime-pink flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+                                <span class="font-bold text-slate-700">预算管理</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+                        </button>
+
+                        <button @click="activeSubPage = 'preorder'" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-purple-100 text-anime-purple flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                </div>
+                                <span class="font-bold text-slate-700">预售与补款管理</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+                        </button>
+
+                        <button @click="activeSubPage = 'lexicon'" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-500 flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-tags"></i>
+                                </div>
+                                <span class="font-bold text-slate-700">个人吃谷词库 (IP/推)</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+                        </button>
+
+                        <button @click="activeSubPage = 'data'" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-500 flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-database"></i>
+                                </div>
+                                <span class="font-bold text-slate-700">数据管理与导出</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+                        </button>
+
+                        <button @click="activeSubPage = 'settings'" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-gear"></i>
+                                </div>
+                                <span class="font-bold text-slate-700">通用设置</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Subpage 1: 预算设置 -->
+                <div v-if="activeSubPage === 'budget'" class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <button @click="activeSubPage = 'main'" class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-sm">
+                            <i class="fa-solid fa-arrow-left text-xs"></i>
+                        </button>
+                        <h3 class="text-sm font-extrabold text-slate-800">预算与额度设置</h3>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-3xl space-y-4 shadow-card">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-700">开启月度预算控制</span>
+                            <input type="checkbox" v-model="settings.enableBudget" class="toggle accent-anime-pink">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs text-slate-400 block">每月吃谷预算 (元)</label>
+                            <input type="number" v-model="settings.monthlyBudget" class="w-full p-2.5 rounded-xl border border-slate-200 text-sm font-bold focus:outline-anime-pink">
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-700">主要IP预算单独设置</h4>
+                            <div v-for="ip in settings.ipBudgets" :key="ip.name" class="flex items-center justify-between text-xs">
+                                <span class="text-slate-600">{{ ip.name }}</span>
+                                <input type="number" v-model="ip.limit" class="w-24 p-1 rounded-lg border border-slate-200 text-right font-bold">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subpage 2: 预售管理 -->
+                <div v-if="activeSubPage === 'preorder'" class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <button @click="activeSubPage = 'main'" class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-sm">
+                            <i class="fa-solid fa-arrow-left text-xs"></i>
+                        </button>
+                        <h3 class="text-sm font-extrabold text-slate-800">预售与补款列表</h3>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div v-for="item in pendingItems" :key="item.id" class="glass-card p-3 rounded-2xl space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[9px] bg-anime-softPink text-anime-pink font-bold px-1.5 py-0.5 rounded">{{ item.ip }}</span>
+                                    <h4 class="text-xs font-bold text-slate-800 mt-1">{{ item.name }}</h4>
+                                </div>
+                                <span class="text-xs font-black text-slate-800">¥{{ item.price }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+                                <span>补款时间区间: 10月01日 - 10月07日</span>
+                                <button @click="markAsReceived(item)" class="bg-anime-pink text-white px-2.5 py-1 rounded-lg font-bold shadow-sm">确认收到</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subpage 3: 个人词库 -->
+                <div v-if="activeSubPage === 'lexicon'" class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <button @click="activeSubPage = 'main'" class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-sm">
+                            <i class="fa-solid fa-arrow-left text-xs"></i>
+                        </button>
+                        <h3 class="text-sm font-extrabold text-slate-800">吃谷词库管理</h3>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-3xl space-y-3">
+                        <h4 class="text-xs font-bold text-slate-700">我的吃谷 IP 列表</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="ip in userLexicon.ips" :key="ip" class="bg-anime-softPink text-anime-pink text-xs font-bold px-2.5 py-1 rounded-xl flex items-center gap-1">
+                                {{ ip }} <i class="fa-solid fa-xmark text-[10px] cursor-pointer"></i>
+                            </span>
+                            <button class="border border-dashed border-slate-300 text-slate-400 text-xs px-2.5 py-1 rounded-xl">+ 增加IP</button>
+                        </div>
+
+                        <h4 class="text-xs font-bold text-slate-700 pt-2">我的推/主推角色 (Oshi)</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="ch in userLexicon.characters" :key="ch" class="bg-anime-softPurple text-anime-purple text-xs font-bold px-2.5 py-1 rounded-xl flex items-center gap-1">
+                                ❤️ {{ ch }} <i class="fa-solid fa-xmark text-[10px] cursor-pointer"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subpage 4: 数据管理 -->
+                <div v-if="activeSubPage === 'data'" class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <button @click="activeSubPage = 'main'" class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-sm">
+                            <i class="fa-solid fa-arrow-left text-xs"></i>
+                        </button>
+                        <h3 class="text-sm font-extrabold text-slate-800">数据管理与备份</h3>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-3xl space-y-3">
+                        <button @click="triggerToast('数据已成功导出至 Excel 文件！')" class="w-full p-3 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center">
+                            <span><i class="fa-solid fa-file-excel text-emerald-500 mr-2"></i> 导出完整账单 CSV</span>
+                            <i class="fa-solid fa-download text-slate-300"></i>
+                        </button>
+                        <button @click="triggerToast('云端数据同步成功！')" class="w-full p-3 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center">
+                            <span><i class="fa-solid fa-cloud-arrow-up text-anime-purple mr-2"></i> 云端备份与同步</span>
+                            <i class="fa-solid fa-rotate text-slate-300"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Subpage 5: 设置 -->
+                <div v-if="activeSubPage === 'settings'" class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <button @click="activeSubPage = 'main'" class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-sm">
+                            <i class="fa-solid fa-arrow-left text-xs"></i>
+                        </button>
+                        <h3 class="text-sm font-extrabold text-slate-800">设置</h3>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-3xl space-y-3 text-xs">
+                        <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                            <span class="text-slate-700 font-bold">补款到期推送提醒</span>
+                            <input type="checkbox" checked class="accent-anime-pink">
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                            <span class="text-slate-700 font-bold">应用启动密码/FaceID</span>
+                            <input type="checkbox" class="accent-anime-pink">
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-slate-700 font-bold">主题外观</span>
+                            <span class="text-slate-400">樱花粉亮色 (默认)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= Bottom Navigation Bar ================= -->
+        <div class="glass-header absolute bottom-0 left-0 right-0 h-16 border-t border-slate-100 flex justify-around items-center px-2 z-30">
+            <button @click="currentTab = 'home'; activeSubPage = 'main'" class="flex flex-col items-center gap-1 transition-all" :class="currentTab === 'home' ? 'text-anime-pink scale-105' : 'text-slate-400'">
+                <i class="fa-solid fa-house-chimney text-base"></i>
+                <span class="text-[10px] font-bold">首页</span>
+            </button>
+
+            <button @click="currentTab = 'expense'; activeSubPage = 'main'" class="flex flex-col items-center gap-1 transition-all" :class="currentTab === 'expense' ? 'text-anime-pink scale-105' : 'text-slate-400'">
+                <i class="fa-solid fa-wallet text-base"></i>
+                <span class="text-[10px] font-bold">消费</span>
+            </button>
+
+            <!-- Floating Center Add Button -->
+            <button @click="openModal('add')" class="w-11 h-11 rounded-full bg-gradient-to-tr from-anime-pink to-anime-purple text-white flex items-center justify-center shadow-floating -mt-5 border-2 border-white active:scale-95 transition-transform">
+                <i class="fa-solid fa-plus text-lg"></i>
+            </button>
+
+            <button @click="currentTab = 'collection'; activeSubPage = 'main'" class="flex flex-col items-center gap-1 transition-all" :class="currentTab === 'collection' ? 'text-anime-pink scale-105' : 'text-slate-400'">
+                <i class="fa-solid fa-heart text-base"></i>
+                <span class="text-[10px] font-bold">收藏</span>
+            </button>
+
+            <button @click="currentTab = 'mine'; activeSubPage = 'main'" class="flex flex-col items-center gap-1 transition-all" :class="currentTab === 'mine' ? 'text-anime-pink scale-105' : 'text-slate-400'">
+                <i class="fa-solid fa-user text-base"></i>
+                <span class="text-[10px] font-bold">我的</span>
+            </button>
+        </div>
+
+        <!-- ================= MODALS & DRAWERS ================= -->
+        
+        <!-- 1. 记一笔 Modal -->
+        <div v-if="activeModal === 'add'" class="absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end animate-fade-in">
+            <div class="bg-white w-full rounded-t-3xl p-5 space-y-4 max-h-[85%] overflow-y-auto">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h3 class="text-sm font-extrabold text-slate-800">＋ 记一笔谷圈消费</h3>
+                    <button @click="activeModal = null" class="text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="text-slate-500 font-bold block mb-1">消费类型</label>
+                        <div class="flex gap-2">
+                            <button @click="newForm.type = '谷子'" class="flex-1 py-2 rounded-xl font-bold border" :class="newForm.type === '谷子' ? 'bg-anime-softPink border-anime-pink text-anime-pink' : 'border-slate-200 text-slate-600'">周边/谷子</button>
+                            <button @click="newForm.type = '氪金'" class="flex-1 py-2 rounded-xl font-bold border" :class="newForm.type === '氪金' ? 'bg-anime-softPurple border-anime-purple text-anime-purple' : 'border-slate-200 text-slate-600'">游戏氪金</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-slate-500 font-bold block mb-1">物品名称 / 抽卡内容</label>
+                        <input type="text" v-model="newForm.title" placeholder="如: 凛月5周年吧唧 x5" class="w-full p-2.5 rounded-xl border border-slate-200 font-medium focus:outline-anime-pink">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-slate-500 font-bold block mb-1">金额 (元)</label>
+                            <input type="number" v-model="newForm.amount" placeholder="0.00" class="w-full p-2.5 rounded-xl border border-slate-200 font-extrabold text-sm focus:outline-anime-pink">
+                        </div>
+                        <div>
+                            <label class="text-slate-500 font-bold block mb-1">所属 IP</label>
+                            <select v-model="newForm.ip" class="w-full p-2.5 rounded-xl border border-slate-200 font-medium">
+                                <option v-for="ip in userLexicon.ips" :key="ip" :value="ip">{{ ip }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div v-if="newForm.type === '谷子'">
+                        <label class="text-slate-500 font-bold block mb-1">当前状态</label>
+                        <div class="flex gap-2">
+                            <button v-for="st in ['现货已到', '预售定金', '代购运输中']" :key="st" @click="newForm.status = st" class="px-3 py-1.5 rounded-lg border text-[11px] font-bold" :class="newForm.status === st ? 'bg-slate-800 text-white' : 'border-slate-200 text-slate-500'">
+                                {{ st }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <button @click="submitNewRecord" class="w-full py-3 rounded-2xl bg-gradient-to-r from-anime-pink to-anime-purple text-white font-bold text-sm shadow-md active:scale-98">
+                        保存消费记录
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 收藏详情 Modal -->
+        <div v-if="selectedCollection" class="absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full rounded-3xl overflow-hidden shadow-2xl max-h-[90%] flex flex-col animate-scale-up">
+                <div class="h-48 bg-slate-100 relative">
+                    <img :src="selectedCollection.image" class="w-full h-full object-cover">
+                    <button @click="selectedCollection = null" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="p-4 space-y-3 overflow-y-auto">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] bg-anime-softPink text-anime-pink font-bold px-2 py-0.5 rounded-full">{{ selectedCollection.ip }}</span>
+                            <h3 class="text-sm font-extrabold text-slate-800 mt-1">{{ selectedCollection.title }}</h3>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">{{ selectedCollection.category }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">入手价格</span>
+                            <span class="text-sm font-black text-slate-800">¥{{ selectedCollection.buyPrice }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">市场估值</span>
+                            <span class="text-sm font-black text-anime-pink">¥{{ selectedCollection.marketPrice }}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1 text-xs text-slate-600">
+                        <p><strong>关联角色：</strong> {{ selectedCollection.character }}</p>
+                        <p><strong>入手日期：</strong> 2026年05月18日</p>
+                        <p><strong>存放位置：</strong> A4痛包 / 展现架1号位</p>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button @click="triggerToast('已标记为拟转让/退坑')" class="flex-1 py-2 rounded-xl border border-rose-200 text-rose-500 font-bold text-xs">标记转让</button>
+                        <button @click="selectedCollection = null" class="flex-1 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 筛选 Drawer -->
+        <div v-if="showFilterDrawer" class="absolute inset-0 bg-black/30 backdrop-blur-sm z-50 flex justify-end">
+            <div class="bg-white w-64 h-full p-4 space-y-4 flex flex-col justify-between animate-slide-left">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <h3 class="text-xs font-bold text-slate-800">高阶条件筛选</h3>
+                        <button @click="showFilterDrawer = false" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <div class="space-y-2 text-xs">
+                        <label class="font-bold text-slate-700 block">按 IP 筛选</label>
+                        <select v-model="filterIp" class="w-full p-2 rounded-xl border border-slate-200">
+                            <option value="">全部 IP</option>
+                            <option v-for="ip in userLexicon.ips" :key="ip" :value="ip">{{ ip }}</option>
+                        </select>
+
+                        <label class="font-bold text-slate-700 block pt-2">品类</label>
+                        <div class="flex flex-wrap gap-1">
+                            <button v-for="c in ['吧唧', '立牌', '手办', '棉花娃娃']" :key="c" @click="filterCategory = filterCategory === c ? '' : c" class="px-2.5 py-1 rounded-lg text-[10px] font-bold border" :class="filterCategory === c ? 'bg-anime-pink text-white border-anime-pink' : 'border-slate-200 text-slate-600'">
+                                {{ c }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="showFilterDrawer = false" class="w-full py-2.5 rounded-xl bg-slate-800 text-white font-bold text-xs">应用筛选结果</button>
+            </div>
+        </div>
+
+        <!-- Toast Floating Notice -->
+        <div v-if="toastMessage" class="absolute top-12 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white text-xs px-4 py-2 rounded-full shadow-lg z-50 animate-bounce">
+            {{ toastMessage }}
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Vue Logic Controller Script -->
+<script>
+    const { createApp, ref, computed, onMounted, watch } = Vue;
+
+    createApp({
+        setup() {
+            const currentTime = ref('12:30');
+            const currentTab = ref('home');
+            const activeSubPage = ref('main');
+            const expenseCategory = ref('全部消费');
+            const collectionSubTab = ref('current');
+            const activeModal = ref(null);
+            const selectedCollection = ref(null);
+            const showFilterDrawer = ref(false);
+            const toastMessage = ref('');
+
+            // Settings State
+            const settings = ref({
+                enableBudget: true,
+                monthlyBudget: 3500,
+                ipBudgets: [
+                    { name: '偶像梦幻祭', limit: 1200 },
+                    { name: '崩坏：星穹铁道', limit: 800 }
+                ]
+            });
+
+            // Lexicon
+            const userLexicon = ref({
+                ips: ['偶像梦幻祭', '崩坏：星穹铁道', '原神', 'Chiikawa', '排球少年'],
+                characters: ['朔间凛月', '卡芙卡', '芙宁娜', '吉伊', '影山飞雄']
+            });
+
+            // Expense Data
+            const expenses = ref([
+                { id: 1, title: '朔间凛月5周年纪念吧唧 x10', amount: 380, ip: '偶像梦幻祭', type: '谷子', date: '09-28', channel: '淘宝代购', status: '已现货到手' },
+                { id: 2, title: '崩铁648古老梦华首充', amount: 648, ip: '崩坏：星穹铁道', type: '氪金', date: '09-25', channel: '游戏内', status: '完成抽卡' },
+                { id: 3, title: 'Chiikawa小八猫睡衣娃娃', amount: 125, ip: 'Chiikawa', type: '谷子', date: '09-20', channel: '煤炉转运', status: '已到手' },
+                { id: 4, title: '芙宁娜1/7限定手办预售定金', amount: 200, ip: '原神', type: '谷子', date: '09-12', channel: 'B站会员购', status: '预售中' }
+            ]);
+
+            // Pending Items
+            const pendingItems = ref([
+                { id: 101, name: '影山飞雄亚克力立牌摇摇乐', ip: '排球少年', price: 88, daysLeft: 2, status: '等待付尾款' },
+                { id: 102, name: '卡芙卡1/7手办尾款', ip: '崩坏：星穹铁道', price: 720, daysLeft: 5, status: '准备发货' }
+            ]);
+
+            // Collections
+            const collections = ref([
+                { id: 1, title: '朔间凛月 誓约戒指1st限定', ip: '偶像梦幻祭', character: '朔间凛月', category: '周边', buyPrice: 450, marketPrice: 1200, premiumRate: 166, image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=300&q=80' },
+                { id: 2, title: 'Chiikawa 睡衣乌萨奇怪兽', ip: 'Chiikawa', character: '乌萨奇', category: '棉花娃娃', buyPrice: 95, marketPrice: 180, premiumRate: 89, image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=300&q=80' },
+                { id: 3, title: '卡芙卡 典藏版画色纸', ip: '崩坏：星穹铁道', character: '卡芙卡', category: '色纸', buyPrice: 65, marketPrice: 85, premiumRate: 30, image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=300&q=80' }
+            ]);
+
+            const collectionHistory = ref([
+                { id: 201, title: '旧版痛包A4粉色', buyPrice: 120, soldPrice: 90, soldDate: '2026-08-12', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=300&q=80' }
+            ]);
+
+            // Filter state for Collections
+            const filterIp = ref('');
+            const filterCategory = ref('');
+
+            // New Form State
+            const newForm = ref({
+                type: '谷子',
+                title: '',
+                amount: '',
+                ip: '偶像梦幻祭',
+                status: '现货已到'
+            });
+
+            // Computed Properties
+            const monthlyExpense = computed(() => {
+                return expenses.value.reduce((acc, item) => acc + Number(item.amount), 0);
+            });
+
+            const budgetPercent = computed(() => {
+                return Math.min(100, Math.round((monthlyExpense.value / settings.value.monthlyBudget) * 100));
+            });
+
+            const recentExpenses = computed(() => expenses.value.slice(0, 3));
+
+            const filteredExpenses = computed(() => {
+                if (expenseCategory.value === '全部消费') return expenses.value;
+                return expenses.value.filter(item => item.type === expenseCategory.value);
+            });
+
+            const totalFilteredExpenseAmount = computed(() => {
+                return filteredExpenses.value.reduce((acc, item) => acc + Number(item.amount), 0);
+            });
+
+            const filteredCollections = computed(() => {
+                return collections.value.filter(item => {
+                    const matchIp = filterIp.value ? item.ip === filterIp.value : true;
+                    const matchCat = filterCategory.value ? item.category === filterCategory.value : true;
+                    return matchIp && matchCat;
+                });
+            });
+
+            const categoryStats = ref([
+                { name: '吧唧/徽章', count: 18, total: 1250, percent: 45 },
+                { name: '亚克力立牌', count: 12, total: 820, percent: 30 },
+                { name: '棉花娃娃', count: 5, total: 450, percent: 15 },
+                { name: '手办/雕像', count: 2, total: 980, percent: 10 }
+            ]);
+
+            // Helper Methods
+            const formatMoney = (val) => Number(val).toLocaleString();
+
+            const openModal = (modalName) => { activeModal.value = modalName; };
+            
+            const submitNewRecord = () => {
+                if (!newForm.value.title || !newForm.value.amount) {
+                    triggerToast('请完整填写名称与金额');
+                    return;
+                }
+                expenses.value.unshift({
+                    id: Date.now(),
+                    title: newForm.value.title,
+                    amount: Number(newForm.value.amount),
+                    ip: newForm.value.ip,
+                    type: newForm.value.type,
+                    date: '09-30',
+                    channel: '手动添加',
+                    status: newForm.value.status
+                });
+                activeModal.value = null;
+                triggerToast('消费记录保存成功！✨');
+                newForm.value.title = '';
+                newForm.value.amount = '';
+            };
+
+            const openCollectionDetail = (item) => {
+                selectedCollection.value = item;
+            };
+
+            const showItemDetail = (item) => {
+                triggerToast(`已定位: ${item.name}`);
+            };
+
+            const markAsReceived = (item) => {
+                pendingItems.value = pendingItems.value.filter(i => i.id !== item.id);
+                triggerToast('已确认收到，自动加入吃谷收藏！');
+            };
+
+            const triggerToast = (msg) => {
+                toastMessage.value = msg;
+                setTimeout(() => { toastMessage.value = ''; }, 2200);
+            };
+
+            // Init Charts on Mount
+            onMounted(() => {
+                // Update digital clock
+                setInterval(() => {
+                    const d = new Date();
+                    currentTime.value = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                }, 1000);
+
+                setTimeout(() => {
+                    initTrendChart();
+                }, 100);
+            });
+
+            watch(expenseCategory, (newVal) => {
+                if (newVal === '统计') {
+                    setTimeout(() => { initPieChart(); }, 100);
+                }
+            });
+
+            const initTrendChart = () => {
+                const ctx = document.getElementById('trendChart');
+                if (!ctx) return;
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['4月', '5月', '6月', '7月', '8月', '9月'],
+                        datasets: [{
+                            data: [1800, 2900, 2100, 3400, 2800, 1353],
+                            borderColor: '#FF94B9',
+                            backgroundColor: 'rgba(255, 148, 185, 0.15)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { display: false }
+                        }
+                    }
+                });
+            };
+
+            const initPieChart = () => {
+                const ctx = document.getElementById('ipPieChart');
+                if (!ctx) return;
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['偶像梦幻祭', '崩铁', '原神', 'Chiikawa'],
+                        datasets: [{
+                            data: [40, 30, 20, 10],
+                            backgroundColor: ['#FF94B9', '#9B8BFF', '#FFC857', '#4EAE9A']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } }
+                    }
+                });
+            };
+
+            return {
+                currentTime, currentTab, activeSubPage, expenseCategory, collectionSubTab,
+                activeModal, selectedCollection, showFilterDrawer, toastMessage,
+                settings, userLexicon, expenses, pendingItems, collections, collectionHistory,
+                filterIp, filterCategory, newForm, monthlyExpense, budgetPercent, recentExpenses,
+                filteredExpenses, totalFilteredExpenseAmount, filteredCollections, categoryStats,
+                formatMoney, openModal, submitNewRecord, openCollectionDetail, showItemDetail,
+                markAsReceived, triggerToast
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
