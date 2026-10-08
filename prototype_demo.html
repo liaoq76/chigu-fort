@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吃谷吗 - 产品原型演示站</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0D0F14',
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow-pulse': 'glowPulse 3s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16,1,0.3,1)',
+                        'fade-in': 'fadeIn 0.4s ease-out',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--web-bg); transition: background 0.4s ease; }
+
+        /* ========== 网页主题系统 ========== */
+        /* 樱花粉:明亮粉色亮色 */
+        body.web-pink {
+            --web-bg: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
+            --web-bg-solid: #FFF5F8;
+            --web-bg-2: #FFE4EC;
+            --web-card: rgba(255,255,255,0.7);
+            --web-card-hover: rgba(255,255,255,0.95);
+            --web-card-border: rgba(255,148,185,0.25);
+            --web-card-border-hover: rgba(255,148,185,0.5);
+            --web-text: #831843;
+            --web-text-muted: rgba(131,24,67,0.65);
+            --web-text-dim: rgba(131,24,67,0.4);
+            --web-accent: #FF1493;
+            --web-accent-2: #9B8BFF;
+            --web-accent-rgb: 255,20,147;
+            --web-glow-1: rgba(255,20,147,0.25);
+            --web-glow-2: rgba(155,139,255,0.15);
+            --web-divider: linear-gradient(90deg, transparent, rgba(255,20,147,0.3), rgba(155,139,255,0.3), transparent);
+            --web-nav-text: rgba(131,24,67,0.55);
+            --web-nav-text-hover: rgba(131,24,67,0.85);
+            --web-nav-active: #FF1493;
+            --web-tag-bg: rgba(255,20,147,0.12);
+            --web-tag-text: #FF1493;
+            --web-tag-border: rgba(255,20,147,0.25);
+            --web-nav-bg: rgba(255,245,248,0.85);
+        }
+        /* 薄荷蓝:清新蓝色亮色 */
+        body.web-mint {
+            --web-bg: linear-gradient(135deg, #F0FDFA 0%, #CFFAFE 100%);
+            --web-bg-solid: #F0FDFA;
+            --web-bg-2: #CFFAFE;
+            --web-card: rgba(255,255,255,0.75);
+            --web-card-hover: rgba(255,255,255,0.95);
+            --web-card-border: rgba(6,182,212,0.25);
+            --web-card-border-hover: rgba(6,182,212,0.5);
+            --web-text: #134E4A;
+            --web-text-muted: rgba(19,78,74,0.65);
+            --web-text-dim: rgba(19,78,74,0.4);
+            --web-accent: #0891B2;
+            --web-accent-2: #3B82F6;
+            --web-accent-rgb: 8,145,178;
+            --web-glow-1: rgba(8,145,178,0.25);
+            --web-glow-2: rgba(59,130,246,0.15);
+            --web-divider: linear-gradient(90deg, transparent, rgba(8,145,178,0.3), rgba(59,130,246,0.3), transparent);
+            --web-nav-text: rgba(19,78,74,0.55);
+            --web-nav-text-hover: rgba(19,78,74,0.85);
+            --web-nav-active: #0891B2;
+            --web-tag-bg: rgba(8,145,178,0.12);
+            --web-tag-text: #0891B2;
+            --web-tag-border: rgba(8,145,178,0.25);
+            --web-nav-bg: rgba(240,253,250,0.85);
+        }
+        /* 高级黑:深色暗调 */
+        body.web-dark {
+            --web-bg: linear-gradient(135deg, #08090C 0%, #0F1116 100%);
+            --web-bg-solid: #08090C;
+            --web-bg-2: #15171F;
+            --web-card: rgba(255,255,255,0.02);
+            --web-card-hover: rgba(255,255,255,0.04);
+            --web-card-border: rgba(255,255,255,0.05);
+            --web-card-border-hover: rgba(255,148,185,0.2);
+            --web-text: rgba(255,255,255,0.85);
+            --web-text-muted: rgba(255,255,255,0.35);
+            --web-text-dim: rgba(255,255,255,0.18);
+            --web-accent: #FF94B9;
+            --web-accent-2: #9B8BFF;
+            --web-accent-rgb: 255,148,185;
+            --web-glow-1: rgba(255,148,185,0.15);
+            --web-glow-2: rgba(155,139,255,0.1);
+            --web-divider: linear-gradient(90deg, transparent, rgba(255,148,185,0.2), rgba(155,139,255,0.2), transparent);
+            --web-nav-text: rgba(255,255,255,0.4);
+            --web-nav-text-hover: rgba(255,255,255,0.7);
+            --web-nav-active: #FF94B9;
+            --web-tag-bg: rgba(255,148,185,0.08);
+            --web-tag-text: #FF94B9;
+            --web-tag-border: rgba(255,148,185,0.15);
+            --web-nav-bg: rgba(8,9,12,0.9);
+        }
+
+        body {
+            background: var(--web-bg);
+            color: var(--web-text);
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(-5px) rotate(-1deg); }
+        }
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.4; filter: blur(40px); }
+            50% { opacity: 0.7; filter: blur(60px); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes themeSwitch {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 粒子背景 */
+        .bg-particles { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+        .particle {
+            position: absolute; border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        /* 导航栏 */
+        .nav-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 13px; font-weight: 600;
+            color: var(--web-nav-text);
+            transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+            border: 1px solid transparent;
+            background: transparent;
+        }
+        .nav-btn:hover {
+            color: var(--web-nav-text-hover);
+            background: rgba(var(--web-accent-rgb), 0.06);
+        }
+        .nav-btn.active {
+            color: var(--web-nav-active);
+            background: rgba(var(--web-accent-rgb), 0.1);
+            border-color: rgba(var(--web-accent-rgb), 0.2);
+        }
+        .nav-btn.active .nav-dot {
+            width: 6px; height: 6px;
+            background: var(--web-nav-active);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--web-nav-active);
+        }
+        .nav-dot {
+            width: 0; height: 0;
+            transition: all 0.25s;
+        }
+
+        /* 导航栏主题切换器 (紧凑型,3 选 1) */
+        .theme-switcher {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px;
+            border-radius: 14px;
+            background: var(--web-card);
+            border: 1px solid var(--web-card-border);
+            gap: 2px;
+        }
+        .theme-switcher-btn {
+            position: relative;
+            padding: 5px 11px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            background: transparent;
+            color: var(--web-text-muted);
+            border: 1px solid transparent;
+        }
+        .theme-switcher-btn:hover {
+            color: var(--web-text);
+            background: rgba(var(--web-accent-rgb), 0.07);
+        }
+        .theme-switcher-btn.active {
+            background: rgba(var(--web-accent-rgb), 0.12);
+            color: var(--web-accent);
+            border-color: rgba(var(--web-accent-rgb), 0.25);
+        }
+        .swatch {
+            width: 14px; height: 14px; border-radius: 4px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+            outline: 2px solid transparent;
+            outline-offset: 1px;
+            transition: outline-color 0.2s;
+        }
+        .theme-switcher-btn.active .swatch {
+            outline-color: var(--web-accent);
+        }
+        .theme-switcher-btn[data-theme="dark"] .swatch {
+            outline: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* 主题展示模块 - 杂志级排版 */
+        .theme-showcase {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .theme-show-card {
+            background: var(--web-card);
+            border: 1px solid var(--web-card-border);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
+            cursor: pointer;
+        }
+        .theme-show-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: var(--show-glow, transparent);
+            opacity: 0; transition: opacity 0.4s;
+            pointer-events: none;
+            border-radius: 24px;
+        }
+        .theme-show-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--show-border-hover);
+        }
+        .theme-show-card:hover::before {
+            opacity: 1;
+        }
+        .theme-show-card.active {
+            border-color: var(--show-border-hover);
+            box-shadow: 0 0 0 1px var(--show-border-hover), 0 20px 48px rgba(0,0,0,0.18);
+        }
+        .theme-show-card.active::before {
+            opacity: 1;
+        }
+        .theme-band {
+            position: relative;
+            height: 170px;
+            overflow: hidden;
+        }
+        .theme-band-circle {
+            position: absolute;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            right: -40px; top: -50px;
+            filter: blur(12px);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .theme-color-tooltip {
+            position: relative;
+            cursor: help;
+        }
+        .theme-color-dot {
+            width: 22px; height: 22px; border-radius: 6px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            transition: transform 0.2s cubic-bezier(0.16,1,0.3,1);
+        }
+        .theme-color-tooltip:hover .theme-color-dot {
+            transform: scale(1.2);
+        }
+        .theme-color-popup {
+            position: absolute;
+            bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+            padding: 3px 7px; border-radius: 5px;
+            font-size: 10px; font-family: 'SF Mono', monospace; font-weight: 600;
+            color: white; background: rgba(0,0,0,0.92);
+            white-space: nowrap;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .theme-color-tooltip:hover .theme-color-popup {
+            opacity: 1;
+        }
+
+        /* 手机外框 */
+        .phone-outer {
+            position: relative;
+            flex-shrink: 0;
+        }
+        .phone-glow {
+            position: absolute; inset: -20px;
+            border-radius: 70px;
+            background: var(--web-glow-1);
+            filter: blur(30px);
+            pointer-events: none;
+            transition: background 0.4s ease;
+        }
+
+        /* 玻璃卡片 */
+        .glass-panel {
+            background: var(--web-card);
+            border: 1px solid var(--web-card-border);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+        .glass-panel:hover {
+            border-color: var(--web-card-border-hover);
+            background: var(--web-card-hover);
+        }
+
+        /* 文档区 */
+        .doc-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 10px; border-radius: 100px;
+            font-size: 11px; font-weight: 600;
+            background: var(--web-tag-bg);
+            color: var(--web-tag-text);
+            border: 1px solid var(--web-tag-border);
+            transition: all 0.3s ease;
+        }
+        .doc-tag-purple {
+            background: rgba(var(--web-accent-rgb), 0.08);
+            color: var(--web-accent-2);
+            border-color: rgba(var(--web-accent-rgb), 0.15);
+        }
+
+        /* 工作流 */
+        .workflow-item {
+            position: relative; padding-left: 28px;
+        }
+        .workflow-item::before {
+            content: ''; position: absolute;
+            left: 7px; top: 20px; bottom: -14px;
+            width: 1.5px;
+            background: var(--web-divider);
+        }
+        .workflow-item:last-child::before { display: none; }
+        .workflow-dot {
+            position: absolute; left: 0; top: 5px;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--web-accent), var(--web-accent-2));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; color: white; font-weight: 700;
+            box-shadow: 0 0 10px rgba(var(--web-accent-rgb), 0.4);
+        }
+
+        /* 规格表 */
+        .spec-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 12px; border-radius: 8px;
+            background: var(--web-card);
+            border: 1px solid var(--web-card-border);
+            transition: all 0.2s;
+        }
+        .spec-row:hover {
+            background: var(--web-card-hover);
+            border-color: var(--web-card-border-hover);
+        }
+        .spec-key { font-size: 11px; color: var(--web-text-muted); min-width: 80px; font-weight: 500; }
+        .spec-val { font-size: 11px; color: var(--web-text); font-weight: 600; }
+
+        /* 特性卡片 */
+        .feat-card {
+            background: color-mix(in srgb, var(--web-card) 95%, transparent);
+            border: 1px solid var(--web-card-border);
+            border-radius: 16px; padding: 18px;
+            transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+            position: relative; overflow: hidden;
+        }
+        .feat-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(var(--web-accent-rgb), 0.04), rgba(var(--web-accent-rgb), 0.02));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .feat-card:hover::before { opacity: 1; }
+        .feat-card:hover {
+            border-color: var(--web-card-border-hover);
+            transform: translateY(-2px);
+        }
+        .feat-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; margin-bottom: 12px;
+            background: var(--web-tag-bg);
+            color: var(--web-tag-text);
+            border: 1px solid var(--web-tag-border);
+            transition: all 0.3s ease;
+        }
+
+        /* 分割线 */
+        .divider {
+            height: 1px;
+            background: var(--web-divider);
+            transition: background 0.4s ease;
+        }
+
+        /* 过渡 */
+        .doc-enter-active { animation: fadeIn 0.3s ease-out; }
+        .doc-leave-active { animation: fadeIn 0.2s ease-in reverse; position: absolute; width: 100%; }
+
+        /* 规则卡片 */
+        .rule-card {
+            background: rgba(var(--web-accent-rgb), 0.03);
+            border: 1px solid rgba(var(--web-accent-rgb), 0.08);
+            border-radius: 10px; padding: 12px;
+            transition: all 0.2s;
+        }
+        .rule-card:hover {
+            border-color: rgba(var(--web-accent-rgb), 0.2);
+            background: rgba(var(--web-accent-rgb), 0.06);
+        }
+
+        /* 标签 */
+        .tag-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 100px;
+            font-size: 10px; font-weight: 600;
+            background: var(--web-card);
+            color: var(--web-text-muted);
+            border: 1px solid var(--web-card-border);
+            transition: all 0.3s ease;
+        }
+
+        /* 文字颜色 */
+        .text-web-accent { color: var(--web-accent); }
+        .text-web-accent-2 { color: var(--web-accent-2); }
+        .text-web-text { color: var(--web-text); }
+        .text-web-muted { color: var(--web-text-muted); }
+        .text-web-dim { color: var(--web-text-dim); }
+
+        /* 背景 */
+        .bg-web-bg { background: var(--web-bg); }
+        .bg-web-bg-2 { background: var(--web-bg-2); }
+        .bg-web-card { background: var(--web-card); }
+
+        /* ============== 文档区:科技深色卡片 ============== */
+        .doc-shell {
+            position: relative;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(var(--web-accent-rgb), 0.04) 0%, rgba(255,255,255,0.02) 50%, transparent 100%);
+            border: 1px solid var(--web-card-border);
+            overflow: hidden;
+            box-shadow: 0 24px 48px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.02) inset;
+        }
+        .doc-header {
+            position: relative;
+            padding: 22px 22px 18px;
+            background:
+                linear-gradient(180deg, rgba(var(--web-accent-rgb), 0.08) 0%, transparent 100%),
+                radial-gradient(circle at 80% 0%, rgba(var(--web-accent-rgb), 0.12) 0%, transparent 50%);
+            border-bottom: 1px solid var(--web-card-border);
+            overflow: hidden;
+        }
+        .doc-header-glow {
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(var(--web-accent-rgb), 0.18) 0%, transparent 60%);
+            pointer-events: none;
+            filter: blur(20px);
+        }
+        .doc-title {
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--web-text) 0%, rgba(var(--web-accent-rgb), 0.85) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .doc-subtitle {
+            font-size: 12px;
+            color: var(--web-text-muted);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        .doc-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            border: 1px solid;
+        }
+        .doc-pill-accent {
+            background: rgba(var(--web-accent-rgb), 0.12);
+            color: var(--web-accent);
+            border-color: rgba(var(--web-accent-rgb), 0.3);
+        }
+        .doc-pill-ghost {
+            background: rgba(255,255,255,0.04);
+            color: var(--web-text-muted);
+            border-color: var(--web-card-border);
+        }
+        .doc-tabs {
+            display: flex;
+            gap: 2px;
+            padding: 6px;
+            margin: 0 16px;
+            /* background: rgba(0,0,0,0.2); */
+            border: 1px solid var(--web-card-border);
+            border-radius: 12px;
+            position: relative;
+        }
+        .doc-tab {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--web-text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .doc-tab:hover {
+            color: var(--web-text);
+            background: rgba(255,255,255,0.03);
+        }
+        .doc-tab.active {
+            background: linear-gradient(180deg, rgba(var(--web-accent-rgb), 0.2) 0%, rgba(var(--web-accent-rgb), 0.08) 100%);
+            color: var(--web-accent);
+            border-color: rgba(var(--web-accent-rgb), 0.35);
+            box-shadow: 0 4px 12px rgba(var(--web-accent-rgb), 0.15);
+        }
+        .doc-tab-count {
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.08);
+            color: inherit;
+        }
+        .doc-tab.active .doc-tab-count {
+            background: rgba(var(--web-accent-rgb), 0.25);
+        }
+        .doc-content {
+            padding: 8px 18px 18px;
+            min-height: 380px;
+        }
+        .doc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 22px;
+            border-top: 1px solid var(--web-card-border);
+            /* background: rgba(0,0,0,0.15); */
+        }
+
+        /* 工作流步骤 */
+        .flow-step {
+            display: flex;
+            gap: 12px;
+        }
+        .flow-num {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+            padding-top: 4px;
+        }
+        .flow-num span {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(var(--web-accent-rgb), 0.15);
+            color: var(--web-accent);
+            border: 1px solid rgba(var(--web-accent-rgb), 0.3);
+            box-shadow: 0 0 12px rgba(var(--web-accent-rgb), 0.15);
+        }
+        .flow-num-line {
+            flex: 1;
+            width: 2px;
+            min-height: 20px;
+            margin-top: 4px;
+            background: linear-gradient(180deg, rgba(var(--web-accent-rgb), 0.4) 0%, rgba(var(--web-accent-rgb), 0.05) 100%);
+        }
+        .flow-card {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--web-card);
+            border: 1px solid var(--web-card-border);
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .flow-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            bottom: 12px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--web-accent), transparent);
+            border-radius: 1px;
+        }
+        .flow-card:hover {
+            border-color: rgba(var(--web-accent-rgb), 0.3);
+            background: var(--web-card-hover);
+            transform: translateX(2px);
+        }
+
+        /* 业务规则卡 */
+        .rule-card-tech {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--web-card);
+            border: 1px solid var(--web-card-border);
+            transition: all 0.2s ease;
+        }
+        .rule-card-tech:hover {
+            border-color: var(--web-card-border-hover);
+            background: var(--web-card-hover);
+            transform: translateY(-1px);
+        }
+        .rule-card-icon {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border: 1px solid;
+        }
+        .rule-card-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            color: var(--web-text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        /* 设计规范分组 */
+        .spec-group {
+            border-radius: 10px;
+            background: var(--web-card);
+            border: 1px solid var(--web-card-border);
+            overflow: hidden;
+        }
+        .spec-group-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            background: rgba(var(--web-accent-rgb), 0.06);
+            border-bottom: 1px solid var(--web-card-border);
+        }
+        .spec-group-icon {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: rgba(var(--web-accent-rgb), 0.15);
+            color: var(--web-accent);
+            font-size: 10px;
+        }
+        .spec-group-body {
+            padding: 4px 6px;
+        }
+        .spec-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 6px;
+            transition: background 0.15s ease;
+            gap: 10px;
+        }
+        .spec-row:hover {
+            background: rgba(var(--web-accent-rgb), 0.05);
+        }
+        .spec-row + .spec-row {
+            border-top: 1px dashed rgba(255,255,255,0.04);
+        }
+        .spec-row-key {
+            font-size: 11px;
+            color: var(--web-text-muted);
+            font-weight: 500;
+        }
+        .spec-row-val {
+            font-size: 10.5px;
+            color: var(--web-text);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            text-align: right;
+            word-break: break-word;
+        }
+        </style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- 粒子背景 -->
+<div class="bg-particles" id="particles"></div>
+
+<div id="app" class="relative z-10">
+
+    <!-- ================= 顶部区 ================= -->
+    <header class="relative overflow-hidden">
+        <!-- 光晕 -->
+        <div class="absolute top-0 left-1/4 w-[400px] h-[400px] rounded-full animate-glow-pulse pointer-events-none"
+             :style="{ background: 'radial-gradient(circle, rgba(var(--web-accent-rgb), 0.15) 0%, transparent 70%)' }"></div>
+        <div class="absolute top-20 right-1/4 w-[300px] h-[300px] rounded-full animate-glow-pulse pointer-events-none"
+             :style="{ background: 'radial-gradient(circle, rgba(155,139,255, 0.1) 0%, transparent 70%)', animationDelay: '1.5s' }"></div>
+
+        <div class="max-w-7xl mx-auto px-6 pt-14 pb-10 relative">
+            <!-- 标签 -->
+            <div class="flex items-center gap-2 mb-5 animate-slide-up">
+                <div class="tag-chip"><i class="fa-solid fa-sparkles text-[9px]"></i> 高保真原型演示</div>
+                <div class="tag-chip"><i class="fa-solid fa-mobile-screen text-[9px]"></i> 完整交互</div>
+                <div class="tag-chip"><i class="fa-solid fa-palette text-[9px]"></i> 多主题</div>
+            </div>
+            <!-- 标题 -->
+            <div class="animate-slide-up" style="animation-delay: 0.05s;">
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">
+                    <span :style="{ background: 'linear-gradient(135deg, var(--web-accent), var(--web-accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }">吃谷吗</span>
+                    <span class="text-web-muted"> — 谷圈超级 App 原型</span>
+                </h1>
+                <p class="text-sm text-web-dim font-medium max-w-2xl leading-relaxed">
+                    专为二次元谷圈玩家打造的记账、收藏、预售追踪与预算管理工具。支持 3 种主题切换，全链路高保真交互原型演示。
+                </p>
+            </div>
+        </div>
+        <div class="divider max-w-7xl mx-auto"></div>
+    </header>
+
+    <!-- ================= 导航栏 ================= -->
+    <nav class="sticky top-0 z-50 backdrop-blur-xl border-b" :style="{ background: 'var(--web-nav-bg)', borderColor: 'var(--web-card-border)' }">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-14">
+                <!-- Logo -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white">吃</div>
+                    <span class="text-sm font-bold text-web-muted">原型演示站</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-medium">v1.0</span>
+                </div>
+
+                <!-- Tab 导航 -->
+                <div class="flex items-center gap-1">
+                    <button v-for="tab in navTabs" :key="tab.key"
+                        @click="switchTab(tab.key)"
+                        class="nav-btn"
+                        :class="{ active: activeTab === tab.key }">
+                        <div class="nav-dot"></div>
+                        <i :class="tab.icon" class="text-xs"></i>
+                        {{ tab.label }}
+                    </button>
+                </div>
+
+                <!-- 顶部主题快速切换 (精致紧凑) -->
+                <div class="theme-switcher">
+                    <button v-for="theme in themes" :key="theme.key"
+                        @click="switchTheme(theme.key)"
+                        class="theme-switcher-btn"
+                        :class="{ active: activeTheme === theme.key }"
+                        :data-theme="theme.key"
+                        :title="theme.name">
+                        <div class="swatch" :style="{ background: theme.swatchColor || theme.accent }"></div>
+                        <span>{{ theme.name }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================= 演示区 ================= -->
+    <section class="max-w-7xl mx-auto px-6 py-10">
+        <div class="flex flex-col xl:flex-row gap-8 items-start">
+
+            <!-- 左侧:手机模型 -->
+            <div class="flex-shrink-0 mx-auto xl:mx-0 animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="phone-outer">
+                    <div class="phone-glow"></div>
+                    <!-- 手机标签 -->
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 glass-panel rounded-full px-4 py-1.5 flex items-center gap-2 z-10">
+                        <i class="fa-solid fa-mobile-screen text-web-accent text-xs"></i>
+                        <span class="text-[11px] font-bold text-web-dim">iPhone 16 Pro</span>
+                    </div>
+                    <!-- iframe 手机模型 -->
+                    <div class="relative rounded-[50px] overflow-hidden animate-slide-up" style="width: 393px; height: 852px; box-shadow: 0 0 0 12px #2d3142, 0 0 0 14px #3a3f52, 0 40px 80px rgba(0,0,0,0.5); animation-delay: 0.15s;">
+                        <iframe
+                            ref="phoneFrame"
+                            src="code_artifact.html"
+                            class="w-full h-full border-none"
+                            title="吃谷吗 App 原型"
+                            @load="onIframeLoad">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧:说明文档 (科技感卡片 + 顶部 Tab) -->
+            <div class="flex-1 min-w-0 mx-auto max-w-2xl animate-slide-up" style="animation-delay: 0.2s; position: relative; width: 100%;">
+                <div class="doc-shell">
+
+                    <!-- 顶部页头 -->
+                    <div class="doc-header">
+                        <div class="doc-header-glow"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="doc-pill doc-pill-accent">
+                                    <i :class="currentDoc.icon" class="text-[9px]"></i>
+                                    {{ currentDoc.pageName }}
+                                </span>
+                                <span class="doc-pill doc-pill-ghost">
+                                    <i class="fa-solid fa-door-open text-[9px]"></i>
+                                    {{ currentDoc.entry }}
+                                </span>
+                                <span class="doc-pill doc-pill-ghost ml-auto">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    Live
+                                </span>
+                            </div>
+                            <h2 class="doc-title">{{ currentDoc.title }}</h2>
+                            <p class="doc-subtitle">{{ currentDoc.desc }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 切换 -->
+                    <div class="doc-tabs">
+                        <button v-for="tab in docTabs" :key="tab.key"
+                            @click="activeDocTab = tab.key"
+                            class="doc-tab"
+                            :class="{ active: activeDocTab === tab.key }">
+                            <i :class="tab.icon + ' text-xs'"></i>
+                            <span class="hidden sm:inline">{{ tab.label }}</span>
+                            <span v-if="tab.count" class="doc-tab-count">{{ tab.count }}</span>
+                        </button>
+                    </div>
+
+                    <!-- 内容区 -->
+                    <transition name="doc" mode="out-in">
+                        <div :key="activeDocTab" class="doc-content">
+
+                            <!-- 工作流 -->
+                            <div v-if="activeDocTab === 'workflow'" class="space-y-3">
+                                <div v-for="(step, i) in currentDoc.workflow" :key="i" class="flow-step">
+                                    <div class="flow-num">
+                                        <span>{{ String(i + 1).padStart(2, '0') }}</span>
+                                        <div class="flow-num-line" v-if="i < currentDoc.workflow.length - 1"></div>
+                                    </div>
+                                    <div class="flow-card">
+                                        <div class="flex items-start justify-between gap-2 mb-1">
+                                            <p class="text-[13px] font-extrabold text-web-text leading-tight">{{ step.title }}</p>
+                                            <i class="fa-solid fa-arrow-right text-[9px] text-web-accent mt-0.5"></i>
+                                        </div>
+                                        <p class="text-[11px] text-web-muted leading-relaxed">{{ step.desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 业务规则 -->
+                            <div v-else-if="activeDocTab === 'rules'" class="grid grid-cols-1 gap-2.5">
+                                <div v-for="(rule, idx) in currentDoc.rules" :key="rule.label"
+                                    class="rule-card-tech">
+                                    <div class="rule-card-icon" :style="{ background: 'linear-gradient(135deg, ' + rule.color + '25, ' + rule.color + '05)', borderColor: rule.color + '40' }">
+                                        <i :class="rule.icon" :style="{ color: rule.color }"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-[12px] font-extrabold text-web-text">{{ rule.label }}</span>
+                                            <span class="rule-card-num">R{{ String(idx + 1).padStart(2, '0') }}</span>
+                                        </div>
+                                        <p class="text-[11px] text-web-muted leading-relaxed">{{ rule.desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 设计规范 -->
+                            <div v-else-if="activeDocTab === 'specs'" class="space-y-2.5">
+                                <div v-for="(group, gKey) in currentDoc.specs" :key="gKey"
+                                    class="spec-group">
+                                    <div class="spec-group-header">
+                                        <div class="spec-group-icon">
+                                            <i :class="specGroupIcons[gKey] || 'fa-solid fa-circle'"></i>
+                                        </div>
+                                        <span class="text-[11px] font-extrabold text-web-text uppercase tracking-wider">{{ specGroupLabels[gKey] }}</span>
+                                        <span class="ml-auto text-[9px] font-bold text-web-dim font-mono">{{ group.length }} 项</span>
+                                    </div>
+                                    <div class="spec-group-body">
+                                        <div v-for="spec in group" :key="spec.key" class="spec-row">
+                                            <span class="spec-row-key">{{ spec.key }}</span>
+                                            <span class="spec-row-val">{{ spec.val }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </transition>
+
+                    <!-- 底部状态栏 -->
+                    <div class="doc-footer">
+                        <div class="flex items-center gap-2 text-[9px] text-web-dim font-mono">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            <span>系统正常</span>
+                        </div>
+                        <div class="text-[9px] text-web-dim font-mono">v1.0.0 · {{ currentDoc.pageName }} 模块</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 主题展示模块 ================= -->
+    <section class="max-w-7xl mx-auto px-6 pb-20">
+        <div class="divider mb-14"></div>
+
+        <!-- 模块标题 -->
+        <div class="flex items-end justify-between mb-10 gap-6 flex-wrap">
+            <div class="max-w-2xl">
+                <div class="inline-flex items-center gap-2 mb-4">
+                    <div class="w-8 h-[1px]" style="background: var(--web-accent);"></div>
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase" style="color: var(--web-accent);">Theme Collection</span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-web-text leading-tight">为每一种心情,</h2>
+                <h2 class="text-3xl md:text-4xl font-extrabold leading-tight" style="color: var(--web-accent);">准备一套主题</h2>
+                <p class="text-sm text-web-muted mt-4 leading-relaxed">三套由设计师精心调校的色彩系统，覆盖日常使用的所有场景。轻点卡片，即刻切换。</p>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" style="background: var(--web-card); border: 1px solid var(--web-card-border);">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[11px] font-semibold text-web-muted">实时同步预览</span>
+            </div>
+        </div>
+
+        <!-- 主题展示 -->
+        <div class="theme-showcase">
+            <div v-for="(theme, idx) in themes" :key="theme.key"
+                @click="switchTheme(theme.key)"
+                class="theme-show-card group"
+                :class="{ active: activeTheme === theme.key }"
+                :style="{
+                    '--show-glow': `radial-gradient(circle at 50% 0%, ${theme.accent}20, transparent 60%)`,
+                    '--show-border-hover': theme.accent,
+                }">
+
+                <!-- 顶部色带 (主题色大色块,视觉锚点) -->
+                <div class="theme-band" :style="{ background: theme.bandGradient }">
+                    <!-- 装饰圆 -->
+                    <div class="theme-band-circle" :style="{ background: theme.accentSoft }"></div>
+
+                    <!-- 左上: 大号编号 -->
+                    <div class="absolute top-4 left-5 font-serif italic font-extrabold" :style="{ color: theme.bandText, fontSize: '36px', lineHeight: 1, textShadow: '0 2px 16px rgba(0,0,0,0.2)', zIndex: 2 }">0{{ idx + 1 }}</div>
+
+                    <!-- 右上: 标签或徽章 -->
+                    <div class="absolute top-4 right-5 flex items-center gap-2" style="z-index: 2">
+                        <div v-if="activeTheme === theme.key" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 whitespace-nowrap"
+                            :style="{ background: 'rgba(255,255,255,0.97)', color: theme.accent, boxShadow: '0 4px 14px rgba(0,0,0,0.18)' }">
+                            <i class="fa-solid fa-circle-check text-[9px]"></i> 使用中
+                        </div>
+                        <div v-else class="text-[10px] font-bold tracking-[0.2em] uppercase" :style="{ color: theme.bandSubText }">{{ theme.tagEn }}</div>
+                    </div>
+
+                    <!-- 左下: 主题名称 -->
+                    <div class="absolute bottom-4 left-5" style="z-index: 2">
+                        <div class="text-[10px] font-bold tracking-[0.2em] uppercase mb-1" :style="{ color: theme.bandSubText }">Theme</div>
+                        <div class="font-extrabold tracking-tight" :style="{ color: theme.bandText, fontSize: '22px', textShadow: '0 2px 12px rgba(0,0,0,0.15)' }">{{ theme.name }}</div>
+                    </div>
+                </div>
+
+                <!-- 内容区 -->
+                <div class="px-6 pt-5 pb-6">
+                    <!-- 描述 -->
+                    <p class="text-[13px] leading-relaxed" style="color: var(--web-text-muted); min-height: 60px;">{{ theme.desc }}</p>
+
+                    <!-- 分隔 -->
+                    <div class="my-5 h-px" style="background: var(--web-card-border);"></div>
+
+                    <!-- 底部:特性 + 操作 -->
+                    <div class="flex items-end justify-between gap-3">
+                        <!-- 特性列表 -->
+                        <div class="space-y-2 flex-1 min-w-0">
+                            <div v-for="f in theme.features" :key="f.label"
+                                class="flex items-center gap-2 text-[11.5px] font-semibold" style="color: var(--web-text);">
+                                <div class="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
+                                    :style="{ background: theme.accent + '18' }">
+                                    <i :class="f.icon" style="color: var(--web-accent); font-size: 9px;"></i>
+                                </div>
+                                <span>{{ f.label }}</span>
+                            </div>
+                        </div>
+                        <!-- 切换按钮 -->
+                        <button class="shrink-0 px-3 py-2 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all"
+                            :style="{
+                                background: activeTheme === theme.key ? theme.accent : 'transparent',
+                                color: activeTheme === theme.key ? '#fff' : theme.accent,
+                                border: `1.5px solid ${theme.accent}`,
+                            }"
+                            @click.stop="switchTheme(theme.key)">
+                            <i :class="activeTheme === theme.key ? 'fa-solid fa-check' : 'fa-solid fa-arrow-right'"></i>
+                            <span>{{ activeTheme === theme.key ? '已应用' : '切换' }}</span>
+                        </button>
+                    </div>
+
+                    <!-- 色板 + 场景 -->
+                    <div class="mt-5 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-semibold mr-1" style="color: var(--web-text-dim);">配色</span>
+                            <div v-for="(color, ci) in theme.colors" :key="ci"
+                                class="theme-color-tooltip relative">
+                                <div class="theme-color-dot" :style="{ background: color }"></div>
+                                <div class="theme-color-popup">{{ color }}</div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] font-medium px-2 py-1 rounded-md" style="color: var(--web-text-dim); background: var(--web-card);">
+                            <i class="fa-regular fa-clock text-[9px]"></i>
+                            {{ theme.scene }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 底部功能展示区 ================= -->
+    <section class="max-w-7xl mx-auto px-6 pb-16">
+        <div class="divider mb-12"></div>
+
+        <!-- 标题 -->
+        <div class="text-center mb-10 animate-slide-up">
+            <div class="tag-chip mb-3"><i class="fa-solid fa-star text-[9px]"></i> 核心亮点</div>
+            <h2 class="text-2xl font-extrabold text-web-text mt-2">为什么选择吃谷吗?</h2>
+            <p class="text-sm text-web-muted mt-2">每一个细节都为谷圈玩家精心打磨</p>
+        </div>
+
+        <!-- 特性卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="(feat, i) in features" :key="feat.title"
+                class="feat-card animate-slide-up" :style="{ animationDelay: (0.05 * i) + 's' }">
+                <div class="feat-icon"><i :class="feat.icon"></i></div>
+                <h3 class="text-sm font-bold text-web-text mb-1.5">{{ feat.title }}</h3>
+                <p class="text-[11px] text-web-muted leading-relaxed">{{ feat.desc }}</p>
+                <div class="mt-3 flex flex-wrap gap-1.5">
+                    <span v-for="tag in feat.tags" :key="tag.text"
+                        class="text-[9px] px-2 py-0.5 rounded-full font-medium"
+                        :style="{ background: tag.bg, color: tag.color }">
+                        {{ tag.text }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 版本说明 -->
+        <div class="mt-10 text-center">
+            <div class="glass-panel rounded-full px-5 py-2.5 inline-flex items-center gap-3">
+                <i class="fa-solid fa-code-branch text-web-accent text-xs"></i>
+                <span class="text-[11px] text-web-muted">当前原型版本</span>
+                <span class="text-[11px] font-bold text-web-text">v1.0</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[11px] text-emerald-400">原型已就绪</span>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+    createApp({
+        setup() {
+            const activeTab = ref('home');
+            const activeDocTab = ref('workflow');
+            const docTabs = [
+                { key: 'workflow', label: '工作流', icon: 'fa-solid fa-route', count: 4 },
+                { key: 'rules', label: '业务规则', icon: 'fa-solid fa-gavel', count: 4 },
+                { key: 'specs', label: '设计规范', icon: 'fa-solid fa-ruler-combined', count: 6 },
+            ];
+            const activeTheme = ref('pink');
+            const phoneFrame = ref(null);
+            let iframeReady = false;
+
+            const navTabs = [
+                { key: 'home', label: '首页', icon: 'fa-solid fa-house-chimney' },
+                { key: 'expense', label: '消费', icon: 'fa-solid fa-wallet' },
+                { key: 'collection', label: '收藏', icon: 'fa-solid fa-heart' },
+                { key: 'mine', label: '我的', icon: 'fa-solid fa-user' },
+            ];
+
+            // 主题配置 (每个主题差异明显)
+            const themes = [
+                {
+                    key: 'pink',
+                    name: '樱花粉',
+                    tag: '明亮 · 甜美',
+                    tagEn: 'Cherry Pink',
+                    desc: '粉白渐变背景搭配玫红点缀，营造温柔少女的视觉氛围。心情好的时候，看一眼就觉得生活甜甜的。',
+                    accent: '#FF1493',
+                    accentSoft: '#FFB6D5',
+                    swatchColor: '#FF1493',
+                    bandGradient: 'linear-gradient(135deg, #FF1493 0%, #FF4D8F 100%)',
+                    bandText: '#FFFFFF',
+                    bandSubText: 'rgba(255,255,255,0.85)',
+                    colors: ['#FF1493', '#FF6BB5', '#FFE4EC', '#FFF5F8'],
+                    features: [
+                        { icon: 'fa-solid fa-sun', label: '明亮色调' },
+                        { icon: 'fa-solid fa-heart', label: '温暖情感' },
+                        { icon: 'fa-solid fa-leaf', label: '清新舒适' },
+                    ],
+                    scene: '白天使用',
+                },
+                {
+                    key: 'mint',
+                    name: '薄荷蓝',
+                    tag: '清新 · 专业',
+                    tagEn: 'Mint Breeze',
+                    desc: '青白渐变搭配深青文字，让每一笔账目都清晰可读。适合想要专注财务管理的你。',
+                    accent: '#0891B2',
+                    accentSoft: '#67E8F9',
+                    swatchColor: '#0891B2',
+                    bandGradient: 'linear-gradient(135deg, #0891B2 0%, #38BDF8 100%)',
+                    bandText: '#FFFFFF',
+                    bandSubText: 'rgba(255,255,255,0.85)',
+                    colors: ['#0891B2', '#22D3EE', '#CFFAFE', '#F0FDFA'],
+                    features: [
+                        { icon: 'fa-solid fa-droplet', label: '清新淡雅' },
+                        { icon: 'fa-solid fa-chart-line', label: '数据清晰' },
+                        { icon: 'fa-solid fa-briefcase', label: '专业冷静' },
+                    ],
+                    scene: '工作学习',
+                },
+                {
+                    key: 'dark',
+                    name: '高级黑',
+                    tag: '深邃 · 沉浸',
+                    tagEn: 'Midnight Black',
+                    desc: '纯黑背景搭配粉色点缀，沉浸式暗色体验。深夜刷谷子时，眼睛不再疲劳。',
+                    accent: '#FF94B9',
+                    accentSoft: '#C4B5FD',
+                    swatchColor: '#1E1B2E',
+                    bandGradient: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4C1D95 100%)',
+                    bandText: '#FFFFFF',
+                    bandSubText: 'rgba(255,255,255,0.75)',
+                    colors: ['#FF94B9', '#9B8BFF', '#1F2937', '#08090C'],
+                    features: [
+                        { icon: 'fa-solid fa-moon', label: '夜间护眼' },
+                        { icon: 'fa-solid fa-eye', label: '沉浸专注' },
+                        { icon: 'fa-solid fa-bolt', label: '省电节能' },
+                    ],
+                    scene: '夜间使用',
+                },
+            ];
+
+            // 文档数据
+            const docs = {
+                home: {
+                    pageName: '首页', icon: 'fa-solid fa-house-chimney',
+                    title: '首页 — 谷圈数据中心',
+                    desc: '聚合用户核心数据，提供快捷入口，驱动日常使用',
+                    entry: '底部 Tab 1',
+                    workflow: [
+                        { title: '打开 App 即见全局', desc: '首屏展示本月消费汇总、预算进度、收藏估值等核心指标，透明直观' },
+                        { title: '快捷操作触达', desc: '记一笔、收藏、预售入口一键触达，减少操作层级，提升效率' },
+                        { title: '收藏预览横滑浏览', desc: '展示最近收藏，支持快速查看详情或溢价状态，减少跳转' },
+                        { title: 'FAB 悬浮按钮', desc: '右下角圆形加号，点击快速记一笔或新增收藏，常驻不消失' },
+                    ],
+                    rules: [
+                        { label: '消费数据实时汇总', desc: '首页消费金额 = 当月所有已记账消费之和，自动计算环比增幅，支持退款自动扣减', icon: 'fa-solid fa-calculator', color: '#FF94B9' },
+                        { label: '收藏卡片优先级', desc: '按最近添加时间排序，溢价商品自动置顶并显示对应级别徽章（暴涨/溢价/收藏）', icon: 'fa-solid fa-arrow-trend-up', color: '#FFC857' },
+                        { label: 'FAB 位置固定', desc: '悬浮按钮固定于底部 Tab Bar 上方，支持点击展开操作菜单', icon: 'fa-solid fa-thumbtack', color: '#9B8BFF' },
+                        { label: '数据实时刷新', desc: '所有数据基于 LocalStorage 实时读写，无需刷新页面即见最新状态', icon: 'fa-solid fa-bolt', color: '#4EAE9A' },
+                    ],
+                    specs: {
+                        layout: [
+                            { key: '页面内边距', val: '16px (p-4)' },
+                            { key: '安全区底距', val: '68px (Tab Bar + 12px)' },
+                            { key: '垂直间距', val: '卡片之间 12px / 区块之间 20px' },
+                        ],
+                        card: [
+                            { key: '渐变卡片高度', val: '约 120px / 圆角 24px (rounded-3xl)' },
+                            { key: '统计卡片内边距', val: '16px / 圆角 16px' },
+                            { key: '卡片背景', val: 'rgba(255,255,255,0.7) / 暗色 0.02' },
+                            { key: '卡片边框', val: '1px 主题色 25% 透明 (card-border)' },
+                        ],
+                        component: [
+                            { key: '快捷入口', val: '56×56px / icon 14px / 文字 10px' },
+                            { key: '收藏预览', val: '96px 宽 / 间距 8px / 横滑' },
+                            { key: 'FAB 主按钮', val: '56×56px (大) / 36px (小) / -mt-6 凸出' },
+                            { key: 'Tab Bar 高度', val: '64px / icon 16px / 文字 10px' },
+                        ],
+                        color: [
+                            { key: '主色 (pink)', val: '#FF1493 (樱花粉主题)' },
+                            { key: '辅助色', val: '#9B8BFF (紫) / #FFC857 (金)' },
+                            { key: '状态色', val: '成功 #4EAE9A / 警告 #FFC857 / 错误 #FF6B6B' },
+                            { key: '文字色阶', val: '主 #831843 / 次 65% / 弱 40%' },
+                        ],
+                        typography: [
+                            { key: '页面标题', val: '20px / font-extrabold' },
+                            { key: '金额数字', val: '30px / font-black / tabular-nums' },
+                            { key: '标签文字', val: '10px / font-bold / tracking-wider' },
+                        ],
+                        interaction: [
+                            { key: '按钮反馈', val: 'active:scale-95 / hover 100ms' },
+                            { key: '页面进入', val: 'fadeIn 0.3s ease-out + slide-up' },
+                            { key: '下拉刷新', val: '暂未实现 / 后续可加' },
+                        ],
+                    },
+                },
+                expense: {
+                    pageName: '消费', icon: 'fa-solid fa-wallet',
+                    title: '消费 — 收支追踪中心',
+                    desc: '记录每一笔吃谷开销，支持分类统计与趋势分析',
+                    entry: '底部 Tab 2',
+                    workflow: [
+                        { title: '记一笔入口', desc: '首页 FAB 或底部 Tab 点击进入记账表单，类型默认为「谷子」' },
+                        { title: '选择消费类型', desc: '消费类型分为「谷子」（周边购买）和「氪金」（游戏充值），颜色和图标不同' },
+                        { title: '填写详情', desc: '商品名称、金额、所属 IP、角色、图片凭证（可选），均支持快捷选择' },
+                        { title: '状态选择', desc: '已付款 / 待付款 / 已退款 / 退款中 四种状态，影响统计口径' },
+                    ],
+                    rules: [
+                        { label: '金额精度', desc: '精确到小数点后 2 位，最大支持 ¥999,999.99，单笔消费限制最小 ¥0.01', icon: 'fa-solid fa-coins', color: '#FF94B9' },
+                        { label: 'IP 必填', desc: '每笔消费必须关联一个 IP，可从历史记录快速选择，也支持新增词条', icon: 'fa-solid fa-link', color: '#9B8BFF' },
+                        { label: '图片可选', desc: '支持拍照或相册选择，建议上传小票/截图作为凭证，增强可追溯性', icon: 'fa-solid fa-image', color: '#4EAE9A' },
+                        { label: '退款自动同步', desc: '退款操作自动从当月消费中扣除，刷新汇总数据，不留脏数据', icon: 'fa-solid fa-rotate-left', color: '#FFC857' },
+                    ],
+                    specs: {
+                        layout: [
+                            { key: '列表内边距', val: '16px 横向 / 12px 顶部' },
+                            { key: '记录卡片间距', val: '8px 垂直' },
+                            { key: '详情底部弹窗', val: '从底部 24px 圆角弹出 / 占屏幕 75%' },
+                        ],
+                        card: [
+                            { key: '记录卡片高度', val: '60px / 圆角 14px' },
+                            { key: '统计大卡片', val: '内边距 18px / 圆角 18px' },
+                            { key: '分类按钮', val: '40×40px / 圆角 10px' },
+                            { key: '状态徽章', val: '10px 字号 / 圆角 999 / padding 2px 8px' },
+                        ],
+                        form: [
+                            { key: '输入框高度', val: '44px（符合触控标准 44pt）' },
+                            { key: '输入框内边距', val: '12px 横向' },
+                            { key: '金额输入字号', val: '36px / font-black / 居中' },
+                            { key: '图片上传区', val: '100% 宽 / 高度 80px / 虚线边框' },
+                            { key: '图片预览', val: '96×96px / 圆角 16px' },
+                        ],
+                        color: [
+                            { key: '谷子 (浅色)', val: '背景 #FFE4EC / 文字 #FF1493' },
+                            { key: '氪金 (浅色)', val: '背景 #EDE9FE / 文字 #9B8BFF' },
+                            { key: '已付款', val: '灰色徽章' },
+                            { key: '待付款', val: '橙色徽章 #FFC857' },
+                            { key: '退款中', val: '蓝色徽章' },
+                            { key: '已退款', val: '绿色徽章 #4EAE9A' },
+                        ],
+                        typography: [
+                            { key: '金额数字', val: '36px / font-black / tabular-nums' },
+                            { key: '商品名', val: '13px / font-bold' },
+                            { key: '元数据', val: '10px / text-muted' },
+                        ],
+                        interaction: [
+                            { key: '滑动操作', val: '左滑显示删除按钮' },
+                            { key: '金额键盘', val: '唤起数字键盘 / type="number"' },
+                            { key: '保存反馈', val: 'Toast 提示 / 0.5s 后自动消失' },
+                            { key: '错误处理', val: '表单校验失败时输入框红边 + 抖动' },
+                        ],
+                    },
+                },
+                collection: {
+                    pageName: '收藏', icon: 'fa-solid fa-heart',
+                    title: '收藏 — 谷子资产管理',
+                    desc: '管理个人谷子收藏，支持溢价追踪与退坑记录',
+                    entry: '底部 Tab 4',
+                    workflow: [
+                        { title: '新增收藏', desc: '拍摄或选择谷子图片，填写名称、IP、入手价、当前价（可选）' },
+                        { title: '系统计算溢价', desc: '自动计算 (当前价 - 入手价) / 入手价 × 100%，精确到小数点后1位' },
+                        { title: '溢价分级展示', desc: '≥50% 显示「🔥 暴涨」，≥20% 显示「📈 溢价」，<20% 显示「💎 收藏」' },
+                        { title: '退坑操作', desc: '将收藏标记为退坑，记录转让价，自动移入「退坑」Tab，支持一键恢复' },
+                    ],
+                    rules: [
+                        { label: '溢价率计算', desc: '溢价率 = (当前估值 - 入手价) / 入手价 × 100%，当前价不填时默认=入手价（0%溢价）', icon: 'fa-solid fa-chart-line', color: '#FFC857' },
+                        { label: '退坑不删除', desc: '退坑收藏保留记录，仅移动到退坑区，支持从退坑区一键恢复，不丢失历史', icon: 'fa-solid fa-rotate-left', color: '#FF94B9' },
+                        { label: '图片裁剪', desc: '上传图片自动裁剪为正方形居中，支持拍照或相册，支持删除重选', icon: 'fa-solid fa-crop', color: '#9B8BFF' },
+                        { label: '溢价标签颜色', desc: '暴涨=红色，溢价=橙色，收藏=主题粉，IP标签用玻璃主题色，统一视觉语言', icon: 'fa-solid fa-palette', color: '#4EAE9A' },
+                    ],
+                    specs: {
+                        layout: [
+                            { key: '网格列数', val: '3 列 / 间距 8px' },
+                            { key: '页面内边距', val: '12px' },
+                            { key: '顶部 Tab 切换', val: '全部 / 暴涨 / 溢价 / 收藏 / 退坑' },
+                        ],
+                        card: [
+                            { key: '卡片圆角', val: '16px (rounded-2xl)' },
+                            { key: '图片比例', val: '1:1 正方形裁剪 / 居中' },
+                            { key: '图片背景', val: '渐变占位 / 加载失败显示图标' },
+                            { key: 'IP 标签', val: '胶囊形 / 玻璃主题色 / 字号 9px' },
+                            { key: '溢价徽章', val: '右上角 / 圆角 8px / 字号 9px' },
+                            { key: '卡片底部', val: '内边距 8px / 名称+当前价' },
+                        ],
+                        detail: [
+                            { key: '详情弹窗', val: '底部弹出 (bottom sheet) / 圆角 24px' },
+                            { key: '弹窗高度', val: '最大屏幕 85%' },
+                            { key: '图片展示', val: '顶部 1:1 / 圆角 24px 24px 0 0' },
+                            { key: '价格对比', val: '入手价 vs 当前价 / 颜色区分' },
+                        ],
+                        color: [
+                            { key: '暴涨 (≥50%)', val: '背景 #FF6B6B / 文字 白' },
+                            { key: '溢价 (≥20%)', val: '背景 #FFA500 / 文字 白' },
+                            { key: '收藏 (<20%)', val: '背景 主题粉 / 文字 白' },
+                            { key: '退坑标识', val: '灰度滤镜 60% / 删除线' },
+                        ],
+                        typography: [
+                            { key: '商品名称', val: '12px / font-bold / 单行省略' },
+                            { key: '当前价', val: '13px / font-extrabold / tabular-nums' },
+                            { key: '入手价', val: '10px / text-muted / 删除线' },
+                        ],
+                        interaction: [
+                            { key: '点击卡片', val: '底部弹起详情 / spring 动画 300ms' },
+                            { key: '长按卡片', val: '显示操作菜单 (编辑/退坑/删除)' },
+                            { key: '下拉刷新', val: '重新拉取图片 / 重新计算溢价' },
+                            { key: '退坑动画', val: '卡片向左滑出 / 灰度过渡 200ms' },
+                        ],
+                    },
+                },
+                mine: {
+                    pageName: '我的', icon: 'fa-solid fa-user',
+                    title: '我的 — 个人中心与工具',
+                    desc: '预售追踪、词库管理、预算控制、数据备份',
+                    entry: '底部 Tab 5',
+                    workflow: [
+                        { title: '预售管理', desc: '登记预售谷子，设置定金/尾款金额，自动按天倒计时，支持四阶段流转' },
+                        { title: '吃谷词库', desc: '管理个人关注的 IP 和角色，支持增删改，记账时快速选择，新IP自动推荐' },
+                        { title: '预算管理', desc: '设置月度预算，实时环形图监控消费进度，支持 80%/100% 双阈值预警' },
+                        { title: '数据导出', desc: '一键导出 JSON 数据备份，支持导入恢复，数据完全属于用户本地' },
+                    ],
+                    rules: [
+                        { label: '预售四阶段', desc: '定金 → 尾款 → 运输中 → 到手，支持阶段间跳转或一键完成任意阶段', icon: 'fa-solid fa-truck-fast', color: '#FF94B9' },
+                        { label: '预算超限提醒', desc: '消费达到 80% 预算时显示黄色警示环，达到 100% 时红色警告+脉冲动画', icon: 'fa-solid fa-bell', color: '#FFC857' },
+                        { label: '主题切换实时', desc: '主题切换通过 CSS 变量实现，无需刷新，立即全局生效，支持 3 种主题', icon: 'fa-solid fa-palette', color: '#9B8BFF' },
+                        { label: '数据本地存储', desc: '所有数据存储于浏览器 LocalStorage，无服务器依赖，支持 JSON 导出备份', icon: 'fa-solid fa-database', color: '#4EAE9A' },
+                    ],
+                    specs: {
+                        layout: [
+                            { key: '页面内边距', val: '16px 横向 / 0 顶部' },
+                            { key: '区块间距', val: '20px 垂直' },
+                            { key: '底部安全区', val: '68px (Tab Bar 高度)' },
+                        ],
+                        profile: [
+                            { key: '头像尺寸', val: '48×48px / 圆形 / 2px 主题色描边' },
+                            { key: '用户等级徽章', val: 'Lv.6 谷圣 / 胶囊 10px' },
+                            { key: '个人简介', val: '10px / text-muted' },
+                        ],
+                        budget: [
+                            { key: '预算环形图', val: 'SVG circle / 直径 80px / 进度色渐变' },
+                            { key: '环粗度', val: 'stroke-width 8' },
+                            { key: '进度色', val: '<80% 主题色 / 80-100% 黄 / >100% 红' },
+                            { key: '中心数字', val: '已花 / 18px font-black' },
+                            { key: '超限动画', val: '>100% 脉冲 1s / 黄环 80% 警告' },
+                        ],
+                        preorder: [
+                            { key: '倒计时', val: '按天计算 (daysLeft) / 整数' },
+                            { key: '阶段徽章', val: '4 色区分 / 圆角 999' },
+                            { key: '预售卡片', val: '内边距 12px / 圆角 14px' },
+                            { key: '剩余天数 ≤3', val: '背景 #FFE4E1 红色警示' },
+                        ],
+                        lexicon: [
+                            { key: '词库条目高度', val: '52px / 圆角 12px' },
+                            { key: 'IP 输入框', val: '内联编辑 / Enter 保存' },
+                            { key: '删除按钮', val: '右上角 ✕ / hover 红色' },
+                        ],
+                        typography: [
+                            { key: '区块标题', val: '14px / font-extrabold' },
+                            { key: '设置项文字', val: '13px / font-medium' },
+                            { key: '数值文字', val: '12px / font-bold / tabular-nums' },
+                        ],
+                        interaction: [
+                            { key: '预算修改', val: '点击环形图唤起数字键盘' },
+                            { key: '词库编辑', val: '点击条目进入编辑模式' },
+                            { key: '数据导出', val: '生成 .json 文件下载' },
+                            { key: '数据导入', val: '选择 .json 文件覆盖' },
+                        ],
+                    },
+                },
+            };
+
+            const currentDoc = computed(() => docs[activeTab.value] || docs.home);
+
+            // 设计规范分组标签与图标
+            const specGroupLabels = {
+                layout: '布局 Layout',
+                card: '卡片 Card',
+                form: '表单 Form',
+                component: '组件 Component',
+                profile: '个人 Profile',
+                budget: '预算 Budget',
+                preorder: '预售 Preorder',
+                lexicon: '词库 Lexicon',
+                detail: '详情 Detail',
+                color: '颜色 Color',
+                typography: '字体 Typography',
+                interaction: '交互 Interaction',
+            };
+            const specGroupIcons = {
+                layout: 'fa-solid fa-table-cells',
+                card: 'fa-solid fa-id-card',
+                form: 'fa-solid fa-rectangle-list',
+                component: 'fa-solid fa-cube',
+                profile: 'fa-solid fa-user',
+                budget: 'fa-solid fa-circle-half-stroke',
+                preorder: 'fa-solid fa-truck-fast',
+                lexicon: 'fa-solid fa-book',
+                detail: 'fa-solid fa-window-maximize',
+                color: 'fa-solid fa-palette',
+                typography: 'fa-solid fa-font',
+                interaction: 'fa-solid fa-hand-pointer',
+            };
+
+            const features = [
+                {
+                    title: '多主题系统',
+                    desc: '支持 3 种精心设计的色彩主题（樱花粉/薄荷蓝/高级黑），一键切换全局生效，深浅模式全覆盖。',
+                    icon: 'fa-solid fa-palette',
+                    tags: [
+                        { text: '3 主题', bg: 'rgba(255,148,185,0.15)', color: '#FF94B9' },
+                        { text: '实时切换', bg: 'rgba(155,139,255,0.15)', color: '#9B8BFF' },
+                    ],
+                },
+                {
+                    title: '消费全链路追踪',
+                    desc: '从记一笔到退款，全生命周期管理。分类统计（谷子/氪金）、趋势图表、消费预警，一个都不能少。',
+                    icon: 'fa-solid fa-chart-pie',
+                    tags: [
+                        { text: '实时统计', bg: 'rgba(255,200,87,0.15)', color: '#FFC857' },
+                        { text: '退款同步', bg: 'rgba(239,68,68,0.15)', color: '#EF4444' },
+                    ],
+                },
+                {
+                    title: '收藏溢价可视化',
+                    desc: '自动计算每件谷子的溢价率，用直观的颜色和徽章展示涨跌（暴涨/溢价/收藏），助你发现价值。',
+                    icon: 'fa-solid fa-arrow-trend-up',
+                    tags: [
+                        { text: '溢价追踪', bg: 'rgba(78,174,154,0.15)', color: '#4EAE9A' },
+                        { text: '智能分级', bg: 'rgba(255,148,185,0.15)', color: '#FF94B9' },
+                    ],
+                },
+                {
+                    title: '预售倒计时系统',
+                    desc: '登记预售谷子后自动倒计时，按四阶段（定金→尾款→运输→到手）推进，不错过任何关键节点。',
+                    icon: 'fa-solid fa-clock-rotate-left',
+                    tags: [
+                        { text: '4 阶段', bg: 'rgba(155,139,255,0.15)', color: '#9B8BFF' },
+                        { text: '倒计时', bg: 'rgba(255,200,87,0.15)', color: '#FFC857' },
+                    ],
+                },
+                {
+                    title: '吃谷词库',
+                    desc: '建立个人 IP 与角色库，记账时快速选择，新 IP 自动推荐词条，告别每次手动输入。',
+                    icon: 'fa-solid fa-book-open',
+                    tags: [
+                        { text: 'IP 词库', bg: 'rgba(255,148,185,0.15)', color: '#FF94B9' },
+                        { text: '快速选择', bg: 'rgba(78,174,154,0.15)', color: '#4EAE9A' },
+                    ],
+                },
+                {
+                    title: '本地优先存储',
+                    desc: '所有数据存储在本地浏览器 LocalStorage，无服务器依赖，支持一键导出 JSON 备份，数据完全属于你。',
+                    icon: 'fa-solid fa-shield-halved',
+                    tags: [
+                        { text: '本地存储', bg: 'rgba(78,174,154,0.15)', color: '#4EAE9A' },
+                        { text: '隐私安全', bg: 'rgba(155,139,255,0.15)', color: '#9B8BFF' },
+                    ],
+                },
+            ];
+
+            // 切换 Tab
+            function switchTab(tab) {
+                activeTab.value = tab;
+                activeDocTab.value = 'workflow';
+                if (iframeReady && phoneFrame.value && phoneFrame.value.contentWindow) {
+                    phoneFrame.value.contentWindow.postMessage(
+                        JSON.stringify({ source: 'prototype-shell', type: 'switchTab', tab: tab }),
+                        '*'
+                    );
+                }
+            }
+
+            // 切换主题
+            function switchTheme(theme) {
+                activeTheme.value = theme;
+                // 切换网页主题
+                document.body.className = 'web-' + theme;
+                // 同步到 iframe
+                if (iframeReady && phoneFrame.value && phoneFrame.value.contentWindow) {
+                    phoneFrame.value.contentWindow.postMessage(
+                        JSON.stringify({ source: 'prototype-shell', type: 'switchTheme', theme: theme }),
+                        '*'
+                    );
+                }
+            }
+
+            // iframe 加载完成
+            function onIframeLoad() {
+                iframeReady = true;
+                // 同步当前状态到 iframe
+                nextTick(() => {
+                    if (phoneFrame.value && phoneFrame.value.contentWindow) {
+                        phoneFrame.value.contentWindow.postMessage(
+                            JSON.stringify({ source: 'prototype-shell', type: 'switchTab', tab: activeTab.value }),
+                            '*'
+                        );
+                        phoneFrame.value.contentWindow.postMessage(
+                            JSON.stringify({ source: 'prototype-shell', type: 'switchTheme', theme: activeTheme.value }),
+                            '*'
+                        );
+                    }
+                });
+            }
+
+            // 主题预览图配色
+            const previewMap = {
+                pink: {
+                    bg: 'linear-gradient(180deg, #FFF5F8 0%, #FFE4EC 100%)',
+                    header: '#FFF5F8',
+                    text: '#831843',
+                    cardBg: 'rgba(255,255,255,0.85)',
+                },
+                mint: {
+                    bg: 'linear-gradient(180deg, #F0FDFA 0%, #CFFAFE 100%)',
+                    header: '#F0FDFA',
+                    text: '#134E4A',
+                    cardBg: 'rgba(255,255,255,0.85)',
+                },
+                dark: {
+                    bg: 'linear-gradient(180deg, #0D0F14 0%, #15171F 100%)',
+                    header: '#0D0F14',
+                    text: '#E5E7EB',
+                    cardBg: 'rgba(255,255,255,0.05)',
+                },
+            };
+            function getThemePreviewBg(key) { return previewMap[key].bg; }
+            function getThemePreviewHeader(key) { return previewMap[key].header; }
+            function getThemePreviewText(key) { return previewMap[key].text; }
+            function getThemePreviewCardBg(key) { return previewMap[key].cardBg; }
+
+            // 监听 iframe 内部主题切换
+            onMounted(() => {
+                window.addEventListener('message', function(e) {
+                    try {
+                        var raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data);
+                        var data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+                        if (!data || data.source !== 'app') return;
+                        // 调试日志
+                        console.log('[原型演示站] 收到 iframe 消息:', data.type, data);
+                        if (data.type === 'themeChanged') {
+                            // iframe 内部主题切换了，网页同步切换
+                            activeTheme.value = data.theme;
+                            document.body.className = 'web-' + data.theme;
+                        }
+                        if (data.type === 'tabChanged') {
+                            var tabMap = { home: 'home', expense: 'expense', collection: 'collection', mine: 'mine' };
+                            if (tabMap[data.tab]) {
+                                console.log('[原型演示站] 切换 Tab 到:', data.tab);
+                                activeTab.value = data.tab;
+                            }
+                        }
+                    } catch(err) { console.error('[原型演示站] 消息处理错误:', err); }
+                });
+
+                // 初始化网页主题
+                document.body.className = 'web-' + activeTheme.value;
+
+                // 粒子效果
+                const container = document.getElementById('particles');
+                if (container) {
+                    const colors = ['#FF94B9', '#9B8BFF', '#FFC857', '#4EAE9A'];
+                    for (let i = 0; i < 25; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'particle';
+                        const size = Math.random() * 3 + 1;
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        p.style.cssText = `
+                            width: ${size}px; height: ${size}px;
+                            background: ${color};
+                            left: ${Math.random() * 100}%;
+                            top: ${Math.random() * 100}%;
+                            animation-duration: ${Math.random() * 15 + 10}s;
+                            animation-delay: ${Math.random() * 5}s;
+                            opacity: ${Math.random() * 0.12 + 0.03};
+                        `;
+                        container.appendChild(p);
+                    }
+                }
+            });
+
+            return {
+                activeTab, activeDocTab, docTabs, activeTheme, phoneFrame, navTabs, themes, docs, currentDoc, features,
+                specGroupLabels, specGroupIcons,
+                switchTab, switchTheme, onIframeLoad,
+                getThemePreviewBg, getThemePreviewHeader, getThemePreviewText, getThemePreviewCardBg,
+            };
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
