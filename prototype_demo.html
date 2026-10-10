@@ -21,6 +21,13 @@
                         'glow-pulse': 'glowPulse 3s ease-in-out infinite',
                         'slide-up': 'slideUp 0.6s cubic-bezier(0.16,1,0.3,1)',
                         'fade-in': 'fadeIn 0.4s ease-out',
+                        'shimmer': 'shimmer 2.4s linear infinite',
+                        'scan-line': 'scanLine 4s linear infinite',
+                        'count-up': 'countUp 0.8s cubic-bezier(0.16,1,0.3,1)',
+                        'border-glow': 'borderGlow 2.5s ease-in-out infinite',
+                        'bounce-soft': 'bounceSoft 0.6s cubic-bezier(0.34,1.56,0.64,1)',
+                        'ripple': 'ripple 1.6s ease-out infinite',
+                        'tilt-in': 'tiltIn 0.5s cubic-bezier(0.16,1,0.3,1)',
                     }
                 }
             }
@@ -138,6 +145,49 @@
             0% { opacity: 0; transform: scale(0.9); }
             100% { opacity: 1; transform: scale(1); }
         }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes scanLine {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(8px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes borderGlow {
+            0%, 100% { box-shadow: 0 0 0 1px rgba(var(--web-accent-rgb), 0.2), 0 0 16px rgba(var(--web-accent-rgb), 0.1); }
+            50% { box-shadow: 0 0 0 1px rgba(var(--web-accent-rgb), 0.5), 0 0 24px rgba(var(--web-accent-rgb), 0.3); }
+        }
+        @keyframes bounceSoft {
+            0% { transform: scale(0.6); opacity: 0; }
+            60% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 0.6; }
+            100% { transform: scale(2.4); opacity: 0; }
+        }
+        @keyframes tiltIn {
+            0% { opacity: 0; transform: perspective(800px) rotateX(-15deg) translateY(20px); }
+            100% { opacity: 1; transform: perspective(800px) rotateX(0) translateY(0); }
+        }
+        @keyframes lineFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 24px; }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        @keyframes numberFlip {
+            0% { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
 
         /* 粒子背景 */
         .bg-particles { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
@@ -224,6 +274,30 @@
         .theme-switcher-btn[data-theme="dark"] .swatch {
             outline: 2px solid rgba(255,255,255,0.2);
         }
+        /* 主题切换波纹 */
+        .theme-switcher-btn::after {
+            content: ''; position: absolute; inset: 0;
+            border-radius: 9px;
+            background: rgba(var(--web-accent-rgb), 0.3);
+            opacity: 0; transform: scale(0.5);
+            pointer-events: none;
+        }
+        .theme-switcher-btn.theme-flash::after {
+            animation: themeFlash 0.6s ease-out;
+        }
+        @keyframes themeFlash {
+            0% { opacity: 0.8; transform: scale(0.5); }
+            100% { opacity: 0; transform: scale(1.6); }
+        }
+        .swatch { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .theme-switcher-btn:hover .swatch { transform: rotate(180deg) scale(1.1); }
+        .theme-switcher-btn.active .swatch {
+            animation: swatchPulse 1.8s ease-in-out infinite;
+        }
+        @keyframes swatchPulse {
+            0%, 100% { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1), 0 0 0 0 rgba(var(--web-accent-rgb), 0.5); }
+            50% { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1), 0 0 0 4px rgba(var(--web-accent-rgb), 0); }
+        }
 
         /* 主题展示模块 - 杂志级排版 */
         .theme-showcase {
@@ -307,6 +381,11 @@
         .phone-outer {
             position: relative;
             flex-shrink: 0;
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+            will-change: transform;
+        }
+        .phone-outer:hover {
+            transform: translateY(-6px) rotateX(2deg) rotateY(-2deg);
         }
         .phone-glow {
             position: absolute; inset: -20px;
@@ -315,6 +394,10 @@
             filter: blur(30px);
             pointer-events: none;
             transition: background 0.4s ease;
+        }
+        .phone-outer:hover .phone-glow {
+            filter: blur(45px);
+            inset: -30px;
         }
 
         /* 玻璃卡片 */
@@ -386,18 +469,59 @@
             background: color-mix(in srgb, var(--web-card) 95%, transparent);
             border: 1px solid var(--web-card-border);
             border-radius: 16px; padding: 18px;
-            transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
             position: relative; overflow: hidden;
+            will-change: transform;
+        }
+        /* Hero 标题渐变流光 */
+        .hero-title-gradient {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: heroGradientShift 5s ease-in-out infinite;
+            position: relative;
+            display: inline-block;
+        }
+        .hero-title-gradient::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 30%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: heroShine 4.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes heroGradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        @keyframes heroShine {
+            0%, 30% { left: -100%; }
+            60%, 100% { left: 130%; }
         }
         .feat-card::before {
             content: ''; position: absolute; inset: 0;
             background: linear-gradient(135deg, rgba(var(--web-accent-rgb), 0.04), rgba(var(--web-accent-rgb), 0.02));
             opacity: 0; transition: opacity 0.3s;
         }
+        .feat-card::after {
+            content: ''; position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(var(--web-accent-rgb), 0.15), transparent);
+            transition: left 0.7s ease;
+            pointer-events: none;
+        }
+        .feat-card:hover::after { left: 100%; }
         .feat-card:hover::before { opacity: 1; }
         .feat-card:hover {
             border-color: var(--web-card-border-hover);
-            transform: translateY(-2px);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 16px 40px -12px rgba(var(--web-accent-rgb), 0.25);
         }
         .feat-icon {
             width: 40px; height: 40px; border-radius: 10px;
@@ -417,8 +541,17 @@
         }
 
         /* 过渡 */
-        .doc-enter-active { animation: fadeIn 0.3s ease-out; }
-        .doc-leave-active { animation: fadeIn 0.2s ease-in reverse; position: absolute; width: 100%; }
+        .doc-enter-active { animation: docContentIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .doc-leave-active { animation: docContentOut 0.25s ease-in; }
+        .doc-leave-to { opacity: 0; transform: translateY(-8px) scale(0.98); }
+        @keyframes docContentIn {
+            0% { opacity: 0; transform: translateY(12px) scale(0.98); filter: blur(4px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        @keyframes docContentOut {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-8px) scale(0.98); }
+        }
 
         /* 规则卡片 */
         .rule-card {
@@ -463,6 +596,9 @@
             border: 1px solid var(--web-card-border);
             overflow: hidden;
             box-shadow: 0 24px 48px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.02) inset;
+            display: flex;
+            flex-direction: column;
+            height: 852px;
         }
         .doc-header {
             position: relative;
@@ -523,12 +659,13 @@
         .doc-tabs {
             display: flex;
             gap: 2px;
-            padding: 6px;
-            margin: 0 16px;
-            /* background: rgba(0,0,0,0.2); */
-            border: 1px solid var(--web-card-border);
+            padding: 5px;
+            margin: 0 18px;
+            background: rgba(var(--web-accent-rgb), 0.06);
+            border: 1px solid rgba(var(--web-accent-rgb), 0.12);
             border-radius: 12px;
             position: relative;
+            margin-top: -4px;
         }
         .doc-tab {
             flex: 1;
@@ -548,7 +685,7 @@
         }
         .doc-tab:hover {
             color: var(--web-text);
-            background: rgba(255,255,255,0.03);
+            background: rgba(var(--web-accent-rgb), 0.05);
         }
         .doc-tab.active {
             background: linear-gradient(180deg, rgba(var(--web-accent-rgb), 0.2) 0%, rgba(var(--web-accent-rgb), 0.08) 100%);
@@ -561,23 +698,43 @@
             font-size: 9px;
             padding: 1px 5px;
             border-radius: 4px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(var(--web-accent-rgb), 0.1);
             color: inherit;
         }
         .doc-tab.active .doc-tab-count {
-            background: rgba(var(--web-accent-rgb), 0.25);
+            background: rgba(var(--web-accent-rgb), 0.3);
+            color: var(--web-text);
         }
         .doc-content {
             padding: 8px 18px 18px;
-            min-height: 380px;
+            min-height: 0;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(var(--web-accent-rgb), 0.4) transparent;
+        }
+        .doc-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .doc-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .doc-content::-webkit-scrollbar-thumb {
+            background: rgba(var(--web-accent-rgb), 0.35);
+            border-radius: 3px;
+        }
+        .doc-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(var(--web-accent-rgb), 0.55);
         }
         .doc-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 22px;
-            border-top: 1px solid var(--web-card-border);
-            /* background: rgba(0,0,0,0.15); */
+            border-top: 1px solid rgba(var(--web-accent-rgb), 0.12);
+            background: linear-gradient(180deg, transparent 0%, rgba(var(--web-accent-rgb), 0.04) 100%);
         }
 
         /* 工作流步骤 */
@@ -594,18 +751,19 @@
             padding-top: 4px;
         }
         .flow-num span {
-            width: 26px;
-            height: 26px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            font-size: 10px;
+            border-radius: 9px;
+            font-size: 11px;
             font-weight: 800;
             font-family: 'JetBrains Mono', monospace;
-            background: rgba(var(--web-accent-rgb), 0.15);
+            background: linear-gradient(135deg, rgba(var(--web-accent-rgb), 0.18), rgba(var(--web-accent-rgb), 0.08));
             color: var(--web-accent);
-            border: 1px solid rgba(var(--web-accent-rgb), 0.3);
+            border: 1px solid rgba(var(--web-accent-rgb), 0.35);
+            box-shadow: 0 0 0 3px rgba(var(--web-accent-rgb), 0.05);
             box-shadow: 0 0 12px rgba(var(--web-accent-rgb), 0.15);
         }
         .flow-num-line {
@@ -736,6 +894,343 @@
             text-align: right;
             word-break: break-word;
         }
+
+        /* ============== 入场动画 ============== */
+        /* 工作流步骤 — 数字方块从上掉落弹跳 */
+        @keyframes flowNumDrop {
+            0% { opacity: 0; transform: translateY(-26px) scale(0.5); }
+            60% { opacity: 1; transform: translateY(4px) scale(1.12); }
+            80% { transform: translateY(-2px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        /* 工作流连接线 — 高度从上往下画出来 */
+        @keyframes flowLineDraw {
+            0% { transform: scaleY(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: scaleY(1); opacity: 1; }
+        }
+        /* 工作流卡片 — 从右侧滑入 */
+        @keyframes flowCardIn {
+            0% { opacity: 0; transform: translateX(28px); filter: blur(2px); }
+            100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+        }
+        /* 箭头进入 */
+        @keyframes flowArrowIn {
+            0% { opacity: 0; transform: translateX(-8px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes ruleCardIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes specGroupIn {
+            from { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes specRowIn {
+            from { opacity: 0; transform: translateX(-6px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .flow-step {
+            position: relative;
+        }
+        .flow-card {
+            opacity: 0;
+            animation: flowCardIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .flow-num-line {
+            position: relative;
+            overflow: hidden;
+            transform-origin: top center;
+            opacity: 0;
+            animation: flowLineDraw 0.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        .flow-num-line-dot {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(180deg, rgba(var(--web-accent-rgb), 0.85), transparent);
+        }
+        /* 数字方块本身 */
+        .flow-num > span {
+            animation: flowNumDrop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        }
+        /* 箭头 */
+        .flow-arrow {
+            opacity: 0;
+            animation: flowArrowIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+        /* 让流动光点延迟启动,等线画完 */
+        .flow-step .flow-num-line-dot {
+            animation: lineFlow 1.5s linear infinite;
+            animation-delay: 0.7s;
+        }
+        .flow-arrow {
+            transition: transform 0.3s ease;
+        }
+        .flow-card:hover .flow-arrow {
+            transform: translateX(3px);
+        }
+
+        .rule-card-tech {
+            opacity: 0;
+            animation: ruleCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .rule-card-icon {
+            position: relative;
+            overflow: visible;
+        }
+        .rule-card-icon-pulse {
+            position: absolute;
+            inset: 0;
+            border-radius: 9px;
+            opacity: 0;
+            animation: ripple 2s ease-out infinite;
+        }
+        .rule-card-tech:hover .rule-card-icon-pulse {
+            animation-duration: 1.2s;
+        }
+        .rule-card-num {
+            transition: all 0.2s ease;
+        }
+        .rule-card-tech:hover .rule-card-num {
+            background: rgba(var(--web-accent-rgb), 0.2);
+            color: var(--web-accent);
+        }
+
+        .spec-group {
+            opacity: 0;
+            animation: specGroupIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .spec-row {
+            opacity: 0;
+            animation: specRowIn 0.4s ease forwards;
+            position: relative;
+        }
+        .spec-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 2px;
+            height: 0;
+            background: var(--web-accent);
+            border-radius: 1px;
+            transform: translateY(-50%);
+            transition: height 0.25s ease;
+        }
+        .spec-row:hover::before {
+            height: 60%;
+        }
+        .spec-count-badge {
+            transition: all 0.3s ease;
+        }
+        .spec-group:hover .spec-count-badge {
+            background: rgba(var(--web-accent-rgb), 0.18);
+            color: var(--web-accent);
+        }
+
+        /* ============== 数字徽章弹跳 ============== */
+        .doc-tab-count {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .doc-tab.active .doc-tab-count {
+            animation: bounceSoft 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ============== 文档卡头部光带扫描 ============== */
+        .doc-header {
+            position: relative;
+            overflow: hidden;
+        }
+        .doc-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(var(--web-accent-rgb), 0.12), transparent);
+            animation: shimmer 3.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .doc-title {
+            background: linear-gradient(135deg, var(--web-text) 0%, rgba(var(--web-accent-rgb), 0.85) 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 6s ease-in-out infinite;
+        }
+
+        /* ============== doc-shell 发光边框 ============== */
+        .doc-shell {
+            position: relative;
+        }
+        .doc-shell::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(var(--web-accent-rgb), 0.4), transparent 40%, transparent 60%, rgba(var(--web-accent-rgb), 0.3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.5;
+            transition: opacity 0.4s ease;
+        }
+        .doc-shell:hover::before {
+            opacity: 1;
+        }
+
+        /* ============== Tab 切换涟漪 ============== */
+        .doc-tab {
+            position: relative;
+            overflow: hidden;
+        }
+        .doc-tab::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(var(--web-accent-rgb), 0.25), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        .doc-tab:hover::before {
+            opacity: 1;
+        }
+
+        /* ============== 工作流步骤的左竖条 ============== */
+        .flow-card::before {
+            transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .flow-card:hover::before {
+            height: calc(100% - 24px);
+        }
+
+        /* ============== 手机顶部扫描光带 ============== */
+        .phone-frame-scan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+            border-radius: 50px 50px 0 0;
+        }
+        .phone-frame-scan::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(var(--web-accent-rgb), 0.6), transparent);
+            box-shadow: 0 0 12px rgba(var(--web-accent-rgb), 0.4);
+            animation: scanLine 4.5s ease-in-out infinite;
+        }
+
+        /* ============== 状态栏闪光 ============== */
+        .doc-pill {
+            position: relative;
+            overflow: hidden;
+        }
+        .doc-pill-accent::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        /* ============== 底部状态点呼吸 ============== */
+        @keyframes dotBreathe {
+            0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(78, 174, 154, 0.7); }
+            50% { transform: scale(1.1); opacity: 0.9; box-shadow: 0 0 0 6px rgba(78, 174, 154, 0); }
+        }
+        .doc-footer .w-1\.5 {
+            animation: dotBreathe 2s ease-in-out infinite;
+        }
+
+        /* ============== Live 徽章呼吸 ============== */
+        @keyframes liveBreath {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+            70% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+        }
+        .doc-pill-ghost .w-1\.5 {
+            animation: liveBreath 1.6s ease-in-out infinite;
+        }
+
+        /* ============== hover 时数字轻微漂浮 ============== */
+        .flow-num span {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .flow-step:hover .flow-num span {
+            transform: scale(1.15) rotate(-5deg);
+            box-shadow: 0 0 20px rgba(var(--web-accent-rgb), 0.4);
+        }
+
+        /* ============== spec-row-val 字符微动 ============== */
+        .spec-row-val {
+            transition: color 0.2s ease;
+        }
+        .spec-row:hover .spec-row-val {
+            color: var(--web-accent);
+        }
+
+        /* ============== 卡片整体光感增强 ============== */
+        .flow-card, .rule-card-tech, .spec-group {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .flow-card:hover, .rule-card-tech:hover, .spec-group:hover {
+            transform: translateY(-1px);
+        }
+
+        /* ============== 主题切换全屏波纹 ============== */
+        .theme-ripple {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+        }
+        .theme-ripple.rippling::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 0; height: 0;
+            border-radius: 50%;
+            background: var(--web-glow-1);
+            filter: blur(30px);
+            transform: translate(50%, -50%);
+            animation: rippleExpand 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes rippleExpand {
+            0% { width: 0; height: 0; opacity: 0.9; }
+            60% { opacity: 0.6; }
+            100% { width: 220vmax; height: 220vmax; opacity: 0; }
+        }
+
+        /* ============== 标签 chip 悬浮高亮 ============== */
+        .tag-chip {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: default;
+        }
+        .tag-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -6px rgba(var(--web-accent-rgb), 0.35);
+        }
         </style>
 </head>
 <body class="overflow-x-hidden">
@@ -744,6 +1239,9 @@
 <div class="bg-particles" id="particles"></div>
 
 <div id="app" class="relative z-10">
+
+    <!-- ================= 主题切换全屏波纹 ================= -->
+    <div id="theme-ripple" class="theme-ripple"></div>
 
     <!-- ================= 顶部区 ================= -->
     <header class="relative overflow-hidden">
@@ -762,8 +1260,8 @@
             </div>
             <!-- 标题 -->
             <div class="animate-slide-up" style="animation-delay: 0.05s;">
-                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">
-                    <span :style="{ background: 'linear-gradient(135deg, var(--web-accent), var(--web-accent-2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }">吃谷吗</span>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3 hero-title">
+                    <span class="hero-title-gradient" :style="{ '--accent': 'var(--web-accent)', '--accent-2': 'var(--web-accent-2)' }">吃谷吗</span>
                     <span class="text-web-muted"> — 谷圈超级 App 原型</span>
                 </h1>
                 <p class="text-sm text-web-dim font-medium max-w-2xl leading-relaxed">
@@ -815,19 +1313,19 @@
 
     <!-- ================= 演示区 ================= -->
     <section class="max-w-7xl mx-auto px-6 py-10">
-        <div class="flex flex-col xl:flex-row gap-8 items-start">
+        <div class="flex flex-col xl:flex-row gap-8 items-stretch xl:items-start">
 
             <!-- 左侧:手机模型 -->
             <div class="flex-shrink-0 mx-auto xl:mx-0 animate-slide-up" style="animation-delay: 0.1s;">
                 <div class="phone-outer">
                     <div class="phone-glow"></div>
                     <!-- 手机标签 -->
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 glass-panel rounded-full px-4 py-1.5 flex items-center gap-2 z-10">
-                        <i class="fa-solid fa-mobile-screen text-web-accent text-xs"></i>
-                        <span class="text-[11px] font-bold text-web-dim">iPhone 16 Pro</span>
+                    <div class="absolute top-2 left-1/2 -translate-x-1/2 glass-panel rounded-full px-3 py-1 flex items-center gap-1.5 z-10">
+                        <i class="fa-solid fa-mobile-screen text-web-accent text-[10px]"></i>
+                        <span class="text-[10px] font-bold text-web-dim">iPhone 16 Pro</span>
                     </div>
                     <!-- iframe 手机模型 -->
-                    <div class="relative rounded-[50px] overflow-hidden animate-slide-up" style="width: 393px; height: 852px; box-shadow: 0 0 0 12px #2d3142, 0 0 0 14px #3a3f52, 0 40px 80px rgba(0,0,0,0.5); animation-delay: 0.15s;">
+                    <div class="relative rounded-[50px] overflow-hidden animate-slide-up phone-frame-scan" style="width: 393px; height: 852px; box-shadow: 0 0 0 12px #2d3142, 0 0 0 14px #3a3f52, 0 40px 80px rgba(0,0,0,0.5); animation-delay: 0.15s;">
                         <iframe
                             ref="phoneFrame"
                             src="code_artifact.html"
@@ -870,6 +1368,7 @@
                     <div class="doc-tabs">
                         <button v-for="tab in docTabs" :key="tab.key"
                             @click="activeDocTab = tab.key"
+                            @mousemove="onTabMouseMove"
                             class="doc-tab"
                             :class="{ active: activeDocTab === tab.key }">
                             <i :class="tab.icon + ' text-xs'"></i>
@@ -886,13 +1385,16 @@
                             <div v-if="activeDocTab === 'workflow'" class="space-y-3">
                                 <div v-for="(step, i) in currentDoc.workflow" :key="i" class="flow-step">
                                     <div class="flow-num">
-                                        <span>{{ String(i + 1).padStart(2, '0') }}</span>
-                                        <div class="flow-num-line" v-if="i < currentDoc.workflow.length - 1"></div>
+                                        <span class="flow-num-badge" :style="{ animationDelay: (0.65 * i) + 's' }">{{ String(i + 1).padStart(2, '0') }}</span>
+                                        <div class="flow-num-line" v-if="i < currentDoc.workflow.length - 1"
+                                            :style="{ animationDelay: (0.65 * i + 0.30) + 's' }">
+                                            <div class="flow-num-line-dot" :style="{ animationDelay: (0.65 * i + 0.75) + 's' }"></div>
+                                        </div>
                                     </div>
-                                    <div class="flow-card">
+                                    <div class="flow-card" :style="{ animationDelay: (0.65 * i + 0.45) + 's' }">
                                         <div class="flex items-start justify-between gap-2 mb-1">
                                             <p class="text-[13px] font-extrabold text-web-text leading-tight">{{ step.title }}</p>
-                                            <i class="fa-solid fa-arrow-right text-[9px] text-web-accent mt-0.5"></i>
+                                            <i class="fa-solid fa-arrow-right text-[9px] text-web-accent mt-0.5 flow-arrow" :style="{ animationDelay: (0.65 * i + 0.85) + 's' }"></i>
                                         </div>
                                         <p class="text-[11px] text-web-muted leading-relaxed">{{ step.desc }}</p>
                                     </div>
@@ -902,9 +1404,11 @@
                             <!-- 业务规则 -->
                             <div v-else-if="activeDocTab === 'rules'" class="grid grid-cols-1 gap-2.5">
                                 <div v-for="(rule, idx) in currentDoc.rules" :key="rule.label"
-                                    class="rule-card-tech">
+                                    class="rule-card-tech"
+                                    :style="{ animationDelay: (0.07 * idx) + 's' }">
                                     <div class="rule-card-icon" :style="{ background: 'linear-gradient(135deg, ' + rule.color + '25, ' + rule.color + '05)', borderColor: rule.color + '40' }">
                                         <i :class="rule.icon" :style="{ color: rule.color }"></i>
+                                        <div class="rule-card-icon-pulse" :style="{ background: rule.color }"></div>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-2 mb-1">
@@ -919,16 +1423,18 @@
                             <!-- 设计规范 -->
                             <div v-else-if="activeDocTab === 'specs'" class="space-y-2.5">
                                 <div v-for="(group, gKey) in currentDoc.specs" :key="gKey"
-                                    class="spec-group">
+                                    class="spec-group"
+                                    :style="{ animationDelay: (0.06 * Object.keys(currentDoc.specs).indexOf(gKey)) + 's' }">
                                     <div class="spec-group-header">
                                         <div class="spec-group-icon">
                                             <i :class="specGroupIcons[gKey] || 'fa-solid fa-circle'"></i>
                                         </div>
                                         <span class="text-[11px] font-extrabold text-web-text uppercase tracking-wider">{{ specGroupLabels[gKey] }}</span>
-                                        <span class="ml-auto text-[9px] font-bold text-web-dim font-mono">{{ group.length }} 项</span>
+                                        <span class="ml-auto text-[9px] font-bold text-web-dim font-mono spec-count-badge">{{ group.length }} 项</span>
                                     </div>
                                     <div class="spec-group-body">
-                                        <div v-for="spec in group" :key="spec.key" class="spec-row">
+                                        <div v-for="(spec, sIdx) in group" :key="spec.key" class="spec-row"
+                                            :style="{ animationDelay: (0.04 * sIdx) + 's' }">
                                             <span class="spec-row-key">{{ spec.key }}</span>
                                             <span class="spec-row-val">{{ spec.val }}</span>
                                         </div>
@@ -1534,6 +2040,29 @@
                         '*'
                     );
                 }
+                // 触发波纹动画
+                const btn = document.querySelector('.theme-switcher-btn[data-theme="' + theme + '"]');
+                if (btn) {
+                    btn.classList.remove('theme-flash');
+                    void btn.offsetWidth; // 重置动画
+                    btn.classList.add('theme-flash');
+                }
+                // 触发全屏波纹
+                const ripple = document.getElementById('theme-ripple');
+                if (ripple) {
+                    ripple.classList.remove('rippling');
+                    void ripple.offsetWidth;
+                    ripple.classList.add('rippling');
+                    setTimeout(() => ripple.classList.remove('rippling'), 900);
+                }
+            }
+
+            // Tab 鼠标追踪 — 涟漪中心跟随
+            function onTabMouseMove(e) {
+                const btn = e.currentTarget;
+                const rect = btn.getBoundingClientRect();
+                btn.style.setProperty('--x', ((e.clientX - rect.left) / rect.width * 100) + '%');
+                btn.style.setProperty('--y', ((e.clientY - rect.top) / rect.height * 100) + '%');
             }
 
             // iframe 加载完成
@@ -1633,7 +2162,7 @@
             return {
                 activeTab, activeDocTab, docTabs, activeTheme, phoneFrame, navTabs, themes, docs, currentDoc, features,
                 specGroupLabels, specGroupIcons,
-                switchTab, switchTheme, onIframeLoad,
+                switchTab, switchTheme, onIframeLoad, onTabMouseMove,
                 getThemePreviewBg, getThemePreviewHeader, getThemePreviewText, getThemePreviewCardBg,
             };
         }
